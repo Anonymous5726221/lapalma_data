@@ -58,6 +58,7 @@ core.*
 
 # pyenv
 .python-version
+venv/
 
 # Jupyter Notebook
 .ipynb_checkpoints
