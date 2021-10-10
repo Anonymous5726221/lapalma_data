@@ -89,7 +89,7 @@ master_df = master_df.sort_values("time", ascending=False, ignore_index=True)
 
 app.layout = html.Div(
     [
-        html.H1(children=f"La Palma 2021 eruption data visualization. Data last refreshed on {dt.fromtimestamp(os.path.getmtime('resource/canary_eqs.json'))}"),
+        html.H1(children=f"La Palma 2021 eruption data visualization. Data last refreshed on {dt.fromtimestamp(os.path.getmtime('resource/canary_eqs.json'))} UTC"),
         dcc.Graph(id="eq_hist_by_magnitude_range"),
         html.P("Magnitude:"),
         dcc.RangeSlider(
