@@ -1,0 +1,6 @@
+pandas
+plotly==5.3.1
+dash
+uWSGI
+requests
+
