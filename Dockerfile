@@ -18,7 +18,5 @@ COPY resource/ ./resource
 COPY dash_app.py ./
 COPY start-dash-srv.sh ./
 
-EXPOSE 80
-
 RUN chmod +x ./start-dash-srv.sh
 CMD ["./start-dash-srv.sh"]
