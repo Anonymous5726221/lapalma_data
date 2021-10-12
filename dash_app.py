@@ -222,12 +222,30 @@ def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
     df = master_df[mask_date & mask_mag]
 
     n_bins = len(master_df.groupby("date")) + 10
-
+    custom_gradient = [
+        'rgb(29, 1, 68)',
+        'rgb(58, 0, 75)',
+        'rgb(85, 0, 81)',
+        'rgb(111, 0, 84)',
+        'rgb(135, 2, 86)',
+        'rgb(158, 17, 86)',
+        'rgb(180, 35, 84)',
+        'rgb(200, 53, 81)',
+        'rgb(217, 73, 77)',
+        'rgb(232, 93, 72)',
+        'rgb(244, 115, 66)',
+        'rgb(254, 137, 61)',
+        'rgb(255, 160, 57)',
+        'rgb(255, 184, 55)',
+        'rgb(255, 207, 58)',
+        'rgb(255, 231, 67)',
+        'rgb(255, 255, 83)'
+    ]
     fig = px.histogram(
-        df,
+        df.sort_values("mag_mean", ascending=False),
         x="date",
         color="mag_mean",
-        color_discrete_sequence=px.colors.sequential.thermal,
+        color_discrete_sequence=custom_gradient,
         nbins=n_bins,
         title="Daily earthquake colored by daily mean magnitude."
     )
