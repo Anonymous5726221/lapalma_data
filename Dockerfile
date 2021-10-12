@@ -3,7 +3,8 @@ FROM python:3.9-slim-buster
 RUN apt-get -y update
 RUN apt-get -y install nginx \
     && apt-get -y install python3-dev \
-    && apt-get -y install build-essential
+    && apt-get -y install build-essential \
+    && apt-get -y install libpq-dev
 
 WORKDIR /app
 
@@ -14,9 +15,10 @@ RUN pip install -r requirements.txt
 COPY uwsgi.ini ./
 COPY nginx.conf /etc/nginx
 COPY SeismicPortal ./SeismicPortal
-COPY resource/ ./resource
-COPY dash_app.py ./
+COPY db_helper ./db_helper
 COPY start-dash-srv.sh ./
+COPY dash_app.py ./
+
 
 RUN chmod +x ./start-dash-srv.sh
 CMD ["./start-dash-srv.sh"]
