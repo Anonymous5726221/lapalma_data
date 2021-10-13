@@ -6,10 +6,12 @@ import logging
 
 import pandas as pd
 import numpy as np
+import math
 import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import psycopg2
 from flask_caching import Cache
 
@@ -51,6 +53,9 @@ def process_data(d):
     master_df["depth"] = master_df.depth.astype(int)
 
     # Enrich data
+
+    # all the calculations for the plots
+    master_df = calculations(master_df)
 
     # Create magnitude bins
     m_bins = [
@@ -517,6 +522,21 @@ def generate_page_layout():
                 today_eqs(),
             ),
             html.Div(
+                quakes_treemap(),
+            ),
+            html.Div(
+                energy_plot(),
+            ),
+            html.Div(
+                stat_table_day(),
+            ),
+            html.Div(
+                stat_table_week(),
+            ),
+            html.Div(
+                stat_table_total(),
+            ),
+            html.Div(
                 [
                     dcc.Markdown('''
                         ## Donation
@@ -536,6 +556,219 @@ def generate_page_layout():
 
     return layout
 
+####calculations####
+# calculate every column required for plots
+def calculations(df):
+    #df["depth"] = -1 * df["depth"]
+    df = calc_week_number(df)
+    df = calculate_joules(df)
+    df = calc_cum_energy(df)
+    return df
+
+# calculated in plot def
+def calculate_daily_mag(df):
+    daily_df = df.groupby(['week', 'date', 'mag']).size().reset_index(name='count')
+    return daily_df
+
+# changed the column name to _energy, because 'energy' column already exists
+def calculate_joules(df):
+    ORDER_OF_MAGNITUDE = 10**9
+    joules = []
+    for mag in df["mag"]:
+        joules.append(math.pow(10, 1.5 * mag + 4.8) / ORDER_OF_MAGNITUDE)
+    joules.reverse()
+    df["_energy"] = joules
+    return df
+
+def calc_cum_energy(df):
+    cumEnergy = []
+    _sum = 0.0
+    for energy in df["_energy"]:
+        _sum += energy
+        cumEnergy.append(_sum)
+    cumEnergy.reverse()
+    df["cumEnergy"] = cumEnergy
+    return df
+
+def calc_week_number(df):
+    df['week'] = df['time'].dt.isocalendar().week
+    df['week'] = 'Week ' + df['week'].astype(str)
+    return df
+
+# calculated in plot def
+def calc_stats_total(df_weekly):
+    df_weekly['temp'] = [1] * len(df_weekly)
+    df_total_min = df_weekly.groupby(['temp']).min()[['depth_min', 'mag_min']].reset_index()
+    df_total_max = df_weekly.groupby(['temp']).max()[['depth_max', 'mag_max']].reset_index()
+    df_total_mean = df_weekly.groupby(['temp']).mean().round(decimals=2)[['depth_mean', 'mag_mean']].reset_index()
+    df_total_eq = df_weekly.groupby(['temp']).size().reset_index(name="earthquakes")
+    df_total_energy = df_weekly.groupby(['temp']).sum().round(decimals=4)[['total_energy [GJ]']].reset_index()
+    
+    df_total_stats = df_total_min.merge(df_total_max)
+    df_total_stats = df_total_stats.merge(df_total_mean)
+    df_total_stats = df_total_stats.merge(df_total_eq)
+    df_total_stats = df_total_stats.merge(df_total_energy)
+    df_total_stats = df_total_stats.drop(columns='temp')
+
+    return df_total_stats
+
+# calculated in plot def
+def calc_stats_per_week(df_daily):
+    df_weekly_min = df_daily.groupby(['week']).min()[['depth_min', 'mag_min']].reset_index()
+    df_weekly_max = df_daily.groupby(['week']).max()[['depth_max', 'mag_max']].reset_index()
+    df_weekly_mean = df_daily.groupby(['week']).mean().round(decimals=2)[['depth_mean', 'mag_mean']].reset_index()
+    df_weekly_eq = df_daily.groupby(['week']).size().reset_index(name="earthquakes")
+    df_weekly_energy = df_daily.groupby(['week']).sum().round(decimals=4)[['total_energy [GJ]']].reset_index()
+
+    df_weekly_stats = df_weekly_min.merge(df_weekly_max, on=['week'])
+    df_weekly_stats = df_weekly_stats.merge(df_weekly_mean, on=['week'])
+    df_weekly_stats = df_weekly_stats.merge(df_weekly_eq, on=['week'])
+    df_weekly_stats = df_weekly_stats.merge(df_weekly_energy, on=['week'])
+    
+    return df_weekly_stats
+
+# calculated in plot def
+def calc_stats_per_day(df):
+    df_daily_min = df.groupby(['date','week']).min()[['depth', 'mag']].reset_index().rename(columns={"depth": "depth_min", "mag": "mag_min"})
+    df_daily_max = df.groupby(['date','week']).max()[['depth', 'mag']].reset_index().rename(columns={"depth": "depth_max", "mag": "mag_max"})
+    df_daily_mean = df.groupby(['date','week']).mean().round(decimals=2)[['depth', 'mag']].reset_index().rename(columns={"depth": "depth_mean", "mag": "mag_mean"})
+    df_daily_eq = df.groupby(['date','week']).size().reset_index(name="earthquakes")
+    df_daily_energy = df.groupby(['date','week']).sum().round(decimals=4)[['_energy']].reset_index().rename(columns={"_energy": "total_energy [GJ]"})
+
+    df_daily_stats = df_daily_min.merge(df_daily_max, on=['date','week'])
+    df_daily_stats = df_daily_stats.merge(df_daily_mean, on=['date','week'])
+    df_daily_stats = df_daily_stats.merge(df_daily_eq, on=['date','week'])
+    df_daily_stats = df_daily_stats.merge(df_daily_energy, on=['date','week'])
+    
+    return df_daily_stats
+
+####plots####
+# fancy info graphic, earthquakes are sorted on week, day and magnitude
+@app.callback(
+    Output("quakes_treemap", "figure"),
+)
+def quakes_treemap():
+    df = get_master_df()
+    df = calculate_daily_mag(df)
+    fig = px.treemap(df, path=[px.Constant("La Palma"),'week', 'date', 'mag'], values='count',
+                        color='count', hover_data={
+                                        "count": False,
+                                        "date": True,
+                                        "week": True,
+                                        "mag": True
+                                        },
+                        title='Earthquakes sorted on week, day, magnitude'
+                        )
+    return fig
+
+# cumulative energy plot with earthquakes plotted on it on a secondary axis
+@app.callback(
+    Output("energy_plot", "figure"),
+)
+def energy_plot():
+    df = get_master_df()
+    subfig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig = px.line(df, x="time", y="cumEnergy",
+                labels={
+                    "cumEnergy":"Energy [GJ]"
+                },
+                color_discrete_sequence=["green"],
+            )
+    fig.update_traces(
+        line=dict(width=5))
+
+    fig2 = px.scatter(df, x="time", y="mag", size="mag", color="mag",
+                        hover_data=["mag"],
+            )
+            
+    fig2.update_traces(yaxis="y2")
+
+    subfig.add_traces(fig2.data + fig.data)
+    subfig.layout.xaxis.title="Time"
+    subfig.layout.yaxis.title="Energy [GJ]"
+    subfig.layout.yaxis2.title="Magnitude"
+
+    subfig.update_xaxes(range=[df.time.min()-pd.Timedelta(hours=1), df.time.max()+pd.Timedelta(hours=1)])
+
+    return subfig
+
+# daily stats
+@app.callback(
+    Output("day_stats", "figure"),
+)
+def stat_table_day():
+    df = get_master_df()
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    align= 'left'),
+        cells=dict(values=[
+                        df.date,
+                        df.week,
+                        df.mag_min,
+                        df.mag_max,
+                        df.mag_mean,
+                        df.depth_min,
+                        df.depth_max,
+                        df.depth_mean,
+                        df.earthquakes,
+                        df['total_energy [GJ]']
+                        ],
+               align='left'))
+    ])
+    return fig
+
+# weekly stats
+@app.callback(
+    Output("week_stats", "figure"),
+)
+def stat_table_week():
+    df = get_master_df()
+    df = calc_stats_per_day(df)
+    df = calc_stats_per_week(df)
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    align= 'left'),
+        cells=dict(values=[
+                        df.week,
+                        df.mag_min,
+                        df.mag_max,
+                        df.mag_mean,
+                        df.depth_min,
+                        df.depth_max,
+                        df.depth_mean,
+                        df.earthquakes,
+                        df['total_energy [GJ]']
+                        ],
+               align='left'))
+    ])
+    return fig
+
+# total stats
+@app.callback(
+    Output("total_stats", "figure"),
+)
+def stat_table_total():
+    df = get_master_df()
+    df = calc_stats_per_day(df)
+    df = calc_stats_per_week(df)
+    df = calc_stats_total(df)
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    align= 'left'),
+        cells=dict(values=[
+                        df.mag_min,
+                        df.mag_max,
+                        df.mag_mean,
+                        df.depth_min,
+                        df.depth_max,
+                        df.depth_mean,
+                        df.earthquakes,
+                        df['total_energy [GJ]']
+                        ],
+               align='left'))
+    ])
+    return fig
 
 app.layout = generate_page_layout
 
