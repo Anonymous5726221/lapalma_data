@@ -217,7 +217,7 @@ def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
     master_df = get_master_df()
 
     min_mag, max_mag = slider_range
-    mask_mag = (master_df['mag'] >= min_mag) & (master_df['mag'] <= max_mag)
+    mask_mag = (master_df['mag_mean'] >= min_mag) & (master_df['mag_mean'] <= max_mag)
     mask_date = (master_df['date'] >= dt.fromisoformat(start_date).date()) & (master_df['date'] <= dt.fromisoformat(end_date).date())
     df = master_df[mask_date & mask_mag]
 
@@ -403,11 +403,12 @@ def generate_page_layout():
             html.P("Magnitude:"),
             dcc.RangeSlider(
                 id='slider_mag_hist2',
-                min=master_df.mag_mean.min(), max=master_df.mag_mean.max(), step=0.1,
-                # marks={0: '0', 2.5: '2.5'},
+                min=np.floor(master_df.mag_mean.min()),
+                max=np.ceil(master_df.mag_mean.max()),
+                step=0.5,
                 marks={round(i, 1): str(round(i, 1)) for i in
-                       np.arange(master_df.mag_mean.min(), master_df.mag_mean.max(), 0.1)},
-                value=[0.0, master_df.mag_mean.max()]
+                       np.arange(np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max()), 0.5)},
+                value=[np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max())]
             ),
             html.P("Date range:"),
             dcc.DatePickerRange(
