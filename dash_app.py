@@ -326,6 +326,37 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     return fig
 
 
+@app.callback(
+    Output("eq_map", "figure"),
+    [
+        Input('date_picker_eq_map1', 'start_date'),
+        Input('date_picker_eq_map1', 'end_date')
+    ]
+)
+def map_eq(start_date, end_date):
+    master_df = get_master_df()
+    mask_date = (master_df['date'] >= dt.fromisoformat(start_date).date()) & (master_df['date'] <= dt.fromisoformat(end_date).date())
+
+    df = master_df[mask_date]
+
+    fig = px.scatter_mapbox(
+        df,
+        lat="lat",
+        lon="lon",
+        hover_name="time",
+        hover_data=["mag", "depth"],
+        color="mag",
+        size=df["mag"] ** 2,
+        color_discrete_sequence=["fuchsia"],
+        zoom=8,
+        height=600
+    )
+    fig.update_layout(mapbox_style="open-street-map")
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    return fig
+
+
 def today_eqs():
     master_df = get_master_df()
 
@@ -356,105 +387,151 @@ def generate_page_layout():
             ),
             html.Div(
                 [
-                    dcc.Graph(id="eq_hist_by_magnitude_range"),
-                    html.P("Magnitude:"),
-                    dcc.RangeSlider(
-                        id='slider_mag_hist1',
-                        min=0, max=9, step=1,
-                        # marks={0: '0', 2.5: '2.5'},
-                        marks={i: str(i) for i in range(10)},
-                        value=[0, 9]
+                    html.Div(
+                        [
+                            dcc.Graph(id="eq_hist_by_magnitude_range"),
+                            html.P("Magnitude:"),
+                            dcc.RangeSlider(
+                                id='slider_mag_hist1',
+                                min=0, max=9, step=1,
+                                # marks={0: '0', 2.5: '2.5'},
+                                marks={i: str(i) for i in range(10)},
+                                value=[0, 9]
+                            ),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_hist1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        # style={'width': '100%', 'display': 'inline-block'},
+                        className="chart"
                     ),
-                    html.P("Date range:"),
-                    dcc.DatePickerRange(
-                        id='date_picker_hist1',
-                        start_date=(dt.now() - timedelta(days=60)).date(),
-                        end_date=dt.now().date(),
-                        display_format='YYYY/MM/DD'
+                    html.Div(
+                        [
+                            dcc.Graph(id="scatter_eq_by_depth"),
+                            html.P("Depth:"),
+                            dcc.RangeSlider(
+                                id='slider_depth_scatter1',
+                                min=master_df.depth.min(), max=master_df.depth.max(), step=5,
+                                # marks={0: '0', 2.5: '2.5'},
+                                marks={i: str(i) for i in range(int(master_df.depth.max()) + 1)},
+                                value=[0, master_df.depth.max()]
+                            ),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_scatter1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        className="chart"
+                    ),
+                    html.Div(
+                        [
+                            dcc.Graph(id="line_daily_eq"),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_line1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        className="chart"
+                    ),
+                    html.Div(
+                        [
+                            dcc.Graph(id="eq_hist_by_mean_magnitude"),
+                            html.P("Magnitude:"),
+                            dcc.RangeSlider(
+                                id='slider_mag_hist2',
+                                min=np.floor(master_df.mag_mean.min()),
+                                max=np.ceil(master_df.mag_mean.max()),
+                                step=0.5,
+                                marks={round(i, 1): str(round(i, 1)) for i in
+                                       np.arange(np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max()),
+                                                 0.5)},
+                                value=[np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max())]
+                            ),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_hist2',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        className="chart"
+                    ),
+                    html.Div(
+                        [
+                            dcc.Graph(id="scatter_3d_eq_coord_by_depth", style={'width': '90vh', 'height': '90vh'}),
+                            html.P("Magnitude:"),
+                            dcc.RangeSlider(
+                                id='slider_mag_3d_scatter1',
+                                min=master_df.mag.min(), max=master_df.mag.max(), step=0.1,
+                                # marks={0: '0', 2.5: '2.5'},
+                                marks={round(i, 1): str(round(i, 1)) for i in
+                                       np.arange(master_df.mag.min(), master_df.mag.max(), 0.1)},
+                                value=[0.0, master_df.mag.max()]
+                            ),
+                            html.P("Depth:"),
+                            dcc.RangeSlider(
+                                id='slider_depth_3d_scatter1',
+                                min=master_df.depth.min(), max=master_df.depth.max(), step=5,
+                                # marks={0: '0', 2.5: '2.5'},
+                                marks={i: str(i) for i in range(master_df.depth.min(), master_df.depth.max(), 5)},
+                                value=[0.0, master_df.depth.max()]
+                            ),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_3d_scatter1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        className="chart"
+                    ),
+                    html.Div(
+                        [
+                            dcc.Graph(id="eq_map"),
+                            html.P("Date range:"),
+                            dcc.DatePickerRange(
+                                id='date_picker_eq_map1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+                        ],
+                        className="map"
                     ),
                 ],
-                style={'width': '100%', 'display': 'inline-block'}
-            ),
-            dcc.Graph(id="scatter_eq_by_depth"),
-            html.P("Depth:"),
-            dcc.RangeSlider(
-                id='slider_depth_scatter1',
-                min=master_df.depth.min(), max=master_df.depth.max(), step=5,
-                # marks={0: '0', 2.5: '2.5'},
-                marks={i: str(i) for i in range(int(master_df.depth.max()) + 1)},
-                value=[0, master_df.depth.max()]
-            ),
-            html.P("Date range:"),
-            dcc.DatePickerRange(
-                id='date_picker_scatter1',
-                start_date=(dt.now() - timedelta(days=60)).date(),
-                end_date=dt.now().date(),
-                display_format='YYYY/MM/DD'
-            ),
-            dcc.Graph(id="line_daily_eq"),
-            html.P("Date range:"),
-            dcc.DatePickerRange(
-                id='date_picker_line1',
-                start_date=(dt.now() - timedelta(days=60)).date(),
-                end_date=dt.now().date(),
-                display_format='YYYY/MM/DD'
-            ),
-            dcc.Graph(id="eq_hist_by_mean_magnitude"),
-            html.P("Magnitude:"),
-            dcc.RangeSlider(
-                id='slider_mag_hist2',
-                min=np.floor(master_df.mag_mean.min()),
-                max=np.ceil(master_df.mag_mean.max()),
-                step=0.5,
-                marks={round(i, 1): str(round(i, 1)) for i in
-                       np.arange(np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max()), 0.5)},
-                value=[np.floor(master_df.mag_mean.min()), np.ceil(master_df.mag_mean.max())]
-            ),
-            html.P("Date range:"),
-            dcc.DatePickerRange(
-                id='date_picker_hist2',
-                start_date=(dt.now() - timedelta(days=60)).date(),
-                end_date=dt.now().date(),
-                display_format='YYYY/MM/DD'
-            ),
-            dcc.Graph(id="scatter_3d_eq_coord_by_depth", style={'width': '90vh', 'height': '90vh'}),
-            html.P("Magnitude:"),
-            dcc.RangeSlider(
-                id='slider_mag_3d_scatter1',
-                min=master_df.mag.min(), max=master_df.mag.max(), step=0.1,
-                # marks={0: '0', 2.5: '2.5'},
-                marks={round(i, 1): str(round(i, 1)) for i in np.arange(master_df.mag.min(), master_df.mag.max(), 0.1)},
-                value=[0.0, master_df.mag.max()]
-            ),
-            html.P("Depth:"),
-            dcc.RangeSlider(
-                id='slider_depth_3d_scatter1',
-                min=master_df.depth.min(), max=master_df.depth.max(), step=5,
-                # marks={0: '0', 2.5: '2.5'},
-                marks={i: str(i) for i in range(master_df.depth.min(), master_df.depth.max(), 5)},
-                value=[0.0, master_df.depth.max()]
-            ),
-            html.P("Date range:"),
-            dcc.DatePickerRange(
-                id='date_picker_3d_scatter1',
-                start_date=(dt.now() - timedelta(days=60)).date(),
-                end_date=dt.now().date(),
-                display_format='YYYY/MM/DD'
+                className="charts"
             ),
             html.Div(
                 today_eqs(),
-                style={'height': '50%', 'display': 'inline-block'}
             ),
-            dcc.Markdown('''
-            ## Donation
-
-            If you find this  useful please consider donating to one of my crypto account. Thank you :)
-
-            [![Donate](https://img.shields.io/badge/Donate-BTC-green.svg?style=plastic&logo=bitcoin)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/BTC_Bitcoin)
-            [![Donate](https://img.shields.io/badge/Donate-BNB-green.svg?style=plastic&logo=binance)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/BNB_BinanceSmartChain)
-            [![Donate](https://img.shields.io/badge/Donate-FTM-green.svg?style=plastic&logo=data:image/svg%2bxml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiIHZpZXdCb3g9IjAgMCA1NjAgNDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgY3g9IjI4MCIgY3k9IjIwMCIgZmlsbD0iIzEzYjVlYyIgcj0iMTUwIiBzdHJva2Utd2lkdGg9IjkuMzc1Ii8+PHBhdGggZD0ibTE3LjIgMTIuOSAzLjYtMi4xdjQuMnptMy42IDktNC44IDIuOC00LjgtMi44di00LjlsNC44IDIuOCA0LjgtMi44em0tOS42LTExLjEgMy42IDIuMS0zLjYgMi4xem01LjQgMy4xIDMuNiAyLjEtMy42IDIuMXptLTEuMiA0LjItMy42LTIuMSAzLjYtMi4xem00LjgtOC4zLTQuMiAyLjQtNC4yLTIuNCA0LjItMi41em0tMTAuMi0uNHYxMy4xbDYgMy40IDYtMy40di0xMy4xbC02LTMuNHoiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0ibWF0cml4KDkuMzc1IDAgMCA5LjM3NSAxMzAgNTApIi8+PC9zdmc+)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/FTM_Fantom)
-            ''')
-        ]
+            html.Div(
+                [
+                    dcc.Markdown('''
+                        ## Donation
+                    
+                        If you find this  useful please consider donating to one of my crypto account. Thank you :)
+                    
+                        [![Donate](https://img.shields.io/badge/Donate-BTC-green.svg?style=plastic&logo=bitcoin)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/BTC_Bitcoin)
+                        [![Donate](https://img.shields.io/badge/Donate-BNB-green.svg?style=plastic&logo=binance)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/BNB_BinanceSmartChain)
+                        [![Donate](https://img.shields.io/badge/Donate-FTM-green.svg?style=plastic&logo=data:image/svg%2bxml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiIHZpZXdCb3g9IjAgMCA1NjAgNDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgY3g9IjI4MCIgY3k9IjIwMCIgZmlsbD0iIzEzYjVlYyIgcj0iMTUwIiBzdHJva2Utd2lkdGg9IjkuMzc1Ii8+PHBhdGggZD0ibTE3LjIgMTIuOSAzLjYtMi4xdjQuMnptMy42IDktNC44IDIuOC00LjgtMi44di00LjlsNC44IDIuOCA0LjgtMi44em0tOS42LTExLjEgMy42IDIuMS0zLjYgMi4xem01LjQgMy4xIDMuNiAyLjEtMy42IDIuMXptLTEuMiA0LjItMy42LTIuMSAzLjYtMi4xem00LjgtOC4zLTQuMiAyLjQtNC4yLTIuNCA0LjItMi41em0tMTAuMi0uNHYxMy4xbDYgMy40IDYtMy40di0xMy4xbC02LTMuNHoiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0ibWF0cml4KDkuMzc1IDAgMCA5LjM3NSAxMzAgNTApIi8+PC9zdmc+)](https://raw.githubusercontent.com/Anonymous5726221/lapalma_data/master/Donate/FTM_Fantom)
+                        ''')
+                ],
+                className="donation"
+            ),
+        ],
+        # style={"display": "flex"}
     )
 
     return layout

@@ -17,6 +17,7 @@ COPY nginx.conf /etc/nginx
 COPY SeismicPortal ./SeismicPortal
 COPY db_helper ./db_helper
 COPY start-dash-srv.sh ./
+COPY assets ./assets
 COPY dash_app.py ./
 
 
