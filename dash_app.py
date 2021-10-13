@@ -601,7 +601,7 @@ def calc_stats_total(df_weekly):
     df_total_min = df_weekly.groupby(['temp']).min()[['depth_min', 'mag_min']].reset_index()
     df_total_max = df_weekly.groupby(['temp']).max()[['depth_max', 'mag_max']].reset_index()
     df_total_mean = df_weekly.groupby(['temp']).mean().round(decimals=2)[['depth_mean', 'mag_mean']].reset_index()
-    df_total_eq = df_weekly.groupby(['temp']).size().reset_index(name="earthquakes")
+    df_total_eq = df_weekly.groupby(['temp']).sum()[['earthquakes']].reset_index()
     df_total_energy = df_weekly.groupby(['temp']).sum().round(decimals=4)[['total_energy [GJ]']].reset_index()
     
     df_total_stats = df_total_min.merge(df_total_max)
@@ -610,6 +610,7 @@ def calc_stats_total(df_weekly):
     df_total_stats = df_total_stats.merge(df_total_energy)
     df_total_stats = df_total_stats.drop(columns='temp')
 
+    df_total_stats = df_total_stats[["mag_min", "mag_max", "mag_mean", "depth_min", "depth_max", "depth_mean", "earthquakes", "total_energy [GJ]"]]
     return df_total_stats
 
 # calculated in plot def
@@ -617,7 +618,7 @@ def calc_stats_per_week(df_daily):
     df_weekly_min = df_daily.groupby(['week']).min()[['depth_min', 'mag_min']].reset_index()
     df_weekly_max = df_daily.groupby(['week']).max()[['depth_max', 'mag_max']].reset_index()
     df_weekly_mean = df_daily.groupby(['week']).mean().round(decimals=2)[['depth_mean', 'mag_mean']].reset_index()
-    df_weekly_eq = df_daily.groupby(['week']).size().reset_index(name="earthquakes")
+    df_weekly_eq = df_daily.groupby(['week']).sum()[['earthquakes']].reset_index()
     df_weekly_energy = df_daily.groupby(['week']).sum().round(decimals=4)[['total_energy [GJ]']].reset_index()
 
     df_weekly_stats = df_weekly_min.merge(df_weekly_max, on=['week'])
@@ -625,6 +626,7 @@ def calc_stats_per_week(df_daily):
     df_weekly_stats = df_weekly_stats.merge(df_weekly_eq, on=['week'])
     df_weekly_stats = df_weekly_stats.merge(df_weekly_energy, on=['week'])
     
+    df_weekly_stats = df_weekly_stats[["week", "mag_min", "mag_max", "mag_mean", "depth_min", "depth_max", "depth_mean", "earthquakes", "total_energy [GJ]"]]
     return df_weekly_stats
 
 # calculated in plot def
@@ -633,13 +635,14 @@ def calc_stats_per_day(df):
     df_daily_max = df.groupby(['date','week']).max()[['depth', 'mag']].reset_index().rename(columns={"depth": "depth_max", "mag": "mag_max"})
     df_daily_mean = df.groupby(['date','week']).mean().round(decimals=2)[['depth', 'mag']].reset_index().rename(columns={"depth": "depth_mean", "mag": "mag_mean"})
     df_daily_eq = df.groupby(['date','week']).size().reset_index(name="earthquakes")
-    df_daily_energy = df.groupby(['date','week']).sum().round(decimals=4)[['_energy']].reset_index().rename(columns={"_energy": "total_energy [GJ]"})
+    df_daily_energy = df.groupby(['date','week']).sum().round(decimals=4)[['energy']].reset_index().rename(columns={"energy": "total_energy [GJ]"})
 
     df_daily_stats = df_daily_min.merge(df_daily_max, on=['date','week'])
     df_daily_stats = df_daily_stats.merge(df_daily_mean, on=['date','week'])
     df_daily_stats = df_daily_stats.merge(df_daily_eq, on=['date','week'])
     df_daily_stats = df_daily_stats.merge(df_daily_energy, on=['date','week'])
     
+    df_daily_stats = df_daily_stats[["week", "date", "mag_min", "mag_max", "mag_mean", "depth_min", "depth_max", "depth_mean", "earthquakes", "total_energy [GJ]"]]
     return df_daily_stats
 
 ####plots####
@@ -703,8 +706,8 @@ def stat_table_day():
         header=dict(values=list(df.columns),
                     align= 'left'),
         cells=dict(values=[
-                        df.date,
                         df.week,
+                        df.date,
                         df.mag_min,
                         df.mag_max,
                         df.mag_mean,
