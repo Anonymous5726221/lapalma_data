@@ -372,6 +372,14 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
                         },
                         title="Earthquake 3d depth map")
 
+    # Alphahull eventually needs to be revised. lowering = longer and bigger blobs, increasing = tighter, smaller blobs
+    fig.add_trace(go.Mesh3d(x=df.lat_scaled, y=df.lon_scaled, z=df.depth,
+                #   alphahull=9     < top and bottom blob connect with each other, but also deforms
+                #   alphahull=18,   < relatively tight blobs with outlier quakes not being included 
+                   alphahull=14,    # < Perhaps the best of both worlds and might connect both blobs if more quakes happen in -20 -25 range
+                   color='pink',
+                   opacity=0.4))
+
     # add grayscale image to plot (impossible have an image with color :( )
     fig.add_trace(go.Surface(
         z=0 * np.ones((r, c)),
@@ -383,11 +391,12 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
         hoverinfo='skip'    # hoverinfo is turned off, but trace is still a plane. Can't get the data underneath it sadly
         ))
 
+    # only show height, because lat and lon are no longer useful. Hoverdata displays real lat/lon, not scaled
     fig.update_layout(
         scene=dict(
             xaxis=dict(showticklabels=False),
             yaxis=dict(showticklabels=False),
-            zaxis=dict(showticklabels=False),
+            zaxis=dict(showticklabels=True),
         ))
 
     fig.update_layout(scene = dict(
