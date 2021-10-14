@@ -10,12 +10,12 @@ import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
 import plotly.graph_objects as go
+from skimage import io
 from plotly.subplots import make_subplots
 import psycopg2
 from flask_caching import Cache
 
 import db_helper.tools
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -329,37 +329,74 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     mask_depth = (master_df['depth'] >= min_depth) & (master_df['depth'] <= max_depth)
     mask_date = (master_df['date'] >= dt.fromisoformat(start_date).date()) & (master_df['date'] <= dt.fromisoformat(end_date).date())
 
+    # get image file location
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    img_file = os.path.join(root_dir, 'map.png')
+
+    # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
+    lat_min = 28.4007
+    lat_max = 28.7105
+
+    lon_min =-17.9915
+    lon_max =-17.6973
+
+    # apart from the masks, filter all the datapoints outside of the map to prevent scaling issues or the map not covering the entire plot
     df = master_df[
-        (master_df.lat <= 28.961) &
-        (master_df.lat >= 28.324) &
-        (master_df.lon <= -17.7935) &
-        (master_df.lon >= -17.9478) &
+        (master_df.lat <= lat_max) &
+        (master_df.lat >= lat_min) &
+        (master_df.lon <= lon_max) &
+        (master_df.lon >= lon_min) &
         mask_mag &
         mask_depth &
         mask_date
     ]
 
-    range_x = [28.324, 28.961]
-    range_y = [-17.7935, -17.9478]
-    range_z = [-40, -0]
+    # get image size
+    img = io.imread(img_file)
+    volume = img.T
+    r, c = volume[0].shape
 
-    fig = px.scatter_3d(
-        df,
-        x='lat',
-        y='lon',
-        z=-df['depth'],
-        range_x=range_x,
-        range_y=range_y,
-        range_z=range_z,
-        color='mag',
-        size=df['mag'] ** 2,
-        labels={
-            "z": "Depth (km)",
-            "mag": "Magnitude",
-        },
-        title="3D plot of earthquakes depth"
-    )
+    #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
+    df['lat_scaled'] = scaling(df.lat, lat_min, lat_max, c)
+    df['lon_scaled'] = scaling(df.lon, lon_min, lon_max, r)
 
+    fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z='depth',
+                        color='mag', size='mag',
+                        hover_data={
+                            'lat': True,
+                            'lon': True,
+                            'depth': True,
+                            'mag': True,
+                            'lat_scaled': False,    # used to plot, is not useful otherwise
+                            'lon_scaled': False     # used to plot, is not useful otherwise
+                        },
+                        title="Earthquake 3d depth map")
+
+    # add grayscale image to plot (impossible have an image with color :( )
+    fig.add_trace(go.Surface(
+        z=0 * np.ones((r, c)),
+        surfacecolor=volume[0],
+        colorscale='Gray',
+        showscale=False,
+        opacity=0.5,
+        cmin=0, cmax=255,
+        hoverinfo='skip'    # hoverinfo is turned off, but trace is still a plane. Can't get the data underneath it sadly
+        ))
+
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(showticklabels=False),
+            yaxis=dict(showticklabels=False),
+            zaxis=dict(showticklabels=False),
+        ))
+
+    fig.update_layout(scene = dict(
+                        xaxis_title='Latitude',
+                        yaxis_title='Longitude',
+                        zaxis_title='Depth'))
+
+    # showing this figure is quite intensive and could take a couple of seconds before it's loaded.
+    # not sure how it performs on the website...
     return fig
 
 
@@ -523,6 +560,21 @@ def stat_table_total():
         style_header=dict(backgroundColor="paleturquoise"),
         style_data=dict(backgroundColor="lavender"),
     )
+
+# Probably could've done this in-line, but it would've been too difficult to read
+def scaling(data, minscaling, maxscaling, maxpxcount):
+    """scales lat and lon to pixel count row/col
+        Args:
+            data (list[float]): list with data to be scaled
+            minscaling (float): min range of the data
+            maxscaling (float): max range of the data
+            maxpxcount (int): pixel count for row/col
+
+        Returns:
+            list[float]: input data scaled to lie between 0 and pixelcount
+    """
+    scaled = np.interp(data, (minscaling, maxscaling), (0, maxpxcount))
+    return scaled
 
 
 ###########################
