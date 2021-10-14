@@ -5,3 +5,5 @@ uWSGI
 requests
 psycopg2
 Flask-Caching
+lxml
+pykml

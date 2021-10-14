@@ -15,6 +15,7 @@ import psycopg2
 from flask_caching import Cache
 
 import db_helper.tools
+from downloads import kml_to_zip, df_to_csv
 
 
 logging.basicConfig(level=logging.INFO)
@@ -541,10 +542,66 @@ def today_eqs():
     )
 
 
+@app.callback(
+    Output("download-kml", "data"),
+    Input("btn_kml", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_kml(n_clicks):
+
+    df = get_master_df()
+    zipfile = kml_to_zip(df)
+
+    return dcc.send_file(
+        zipfile
+    )
+
+@app.callback(
+    Output('dummy_out_kml', 'children'),
+    Input('download-kml', 'data'))
+def delete_tmp_kml(filepath):
+    try:
+        os.remove(f"/tmp/{filepath.get('filename')}")
+    except AttributeError:
+        logging.warning(f"No file to delete yet.")
+
+
+
+@app.callback(
+    Output("download-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv(n_clicks):
+
+    df = get_master_df()
+    csvfile = df_to_csv(df)
+
+    return dcc.send_file(
+        csvfile
+    )
+
+@app.callback(
+    Output('dummy_out_csv', 'children'),
+    Input('download-csv', 'data'))
+def delete_tmp_csv(filepath):
+    try:
+        os.remove(f"/tmp/{filepath.get('filename')}")
+    except AttributeError:
+        logging.warning(f"No file to delete yet.")
+
+
+
 def generate_page_layout():
     master_df = get_master_df()
     layout = html.Div(
         [
+            html.Button("Download KML", id="btn_kml"),
+            dcc.Download(id="download-kml"),
+            html.Div(id='dummy_out_kml'),
+            html.Button("Download CSV", id="btn_csv"),
+            dcc.Download(id="download-csv"),
+            html.Div(id='dummy_out_csv'),
             html.H1(
                 children=f"La Palma 2021 eruption data visualization."),
             html.Div(id='dataset_last_update'),
@@ -771,6 +828,7 @@ def generate_page_layout():
 
 
 app.layout = generate_page_layout
+
 
 if __name__ == '__main__':
     app.run_server(host="0.0.0.0", debug=True, port=8050)

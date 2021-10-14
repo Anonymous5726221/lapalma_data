@@ -19,6 +19,7 @@ COPY db_helper ./db_helper
 COPY start-dash-srv.sh ./
 COPY assets ./assets
 COPY dash_app.py ./
+COPY downloads.py ./
 
 
 RUN chmod +x ./start-dash-srv.sh
