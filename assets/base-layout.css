@@ -24,3 +24,21 @@
     text-align: center;
     color: #8988DB;
 }
+
+.DataTables {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+.DataTable {
+    box-sizing: border-box;
+    width: 50%;
+    height: 50%;
+    padding: 5px 30px 10px;
+    text-align: center;
+    overflow: auto;
+}

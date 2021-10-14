@@ -10,6 +10,7 @@ import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import psycopg2
 from flask_caching import Cache
 
@@ -35,6 +36,7 @@ CACHE_CONFIG = {
 cache = Cache()
 cache.init_app(app.server, config=CACHE_CONFIG)
 
+
 def process_data(d):
     master_df = pd.DataFrame(d)
 
@@ -51,6 +53,9 @@ def process_data(d):
     master_df["depth"] = master_df.depth.astype(int)
 
     # Enrich data
+
+    # Add week number
+    master_df['week'] = master_df['time'].dt.isocalendar().week
 
     # Create magnitude bins
     m_bins = [
@@ -84,6 +89,7 @@ def process_data(d):
     # Add Energy equivalent in Joule
     master_df["energy"] = master_df.mag.apply(lambda x: 10 ** (1.5 * x + 4.8))
     master_df = pd.merge(master_df, master_df.groupby("date")["energy"].sum().reset_index(name='daily_energy'), how="left", on=["date"])
+    master_df["cumEnergy"] = master_df.energy.cumsum()
 
     return master_df.sort_values("time", ascending=False, ignore_index=True)
 
@@ -107,6 +113,32 @@ def _get_master_df():
 def get_master_df():
 
     return _get_master_df()
+
+
+def aggregated_df(master_df, agg="date"):
+
+    to_drop = ["depth", "mag"]
+
+    if agg == "all":
+        master_df["all"] = 1
+        to_drop.append("all")
+
+    agg_df = master_df.groupby(agg).size().reset_index(name="earthquakes")
+
+    # Need to initialize those 2 columns for the first merge to work.
+    agg_df[["depth", "mag"]] = np.NaN
+
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)["energy"].sum().round(decimals=4).reset_index(name='energy'), how="left", on=[agg])
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].min().reset_index(), how="left", on=[agg], suffixes=("", "_min"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].max().reset_index(), how="left", on=[agg], suffixes=("", "_max"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].mean().reset_index(), how="left", on=[agg], suffixes=("", "_mean"))
+
+    agg_df = agg_df.drop(to_drop, axis=1)
+
+    if agg == "date":
+        agg_df['week'] = pd.to_datetime(agg_df['date']).dt.isocalendar().week
+
+    return agg_df
 
 
 @app.callback(
@@ -343,18 +375,154 @@ def map_eq(start_date, end_date):
         df,
         lat="lat",
         lon="lon",
-        hover_name="time",
-        hover_data=["mag", "depth"],
         color="mag",
         size=df["mag"] ** 2,
         color_discrete_sequence=["fuchsia"],
         zoom=8,
-        height=600
+        height=600,
+        hover_name="time",
+        hover_data={
+            # "size": False,
+            "mag": True,
+            "depth": "km"
+        },
     )
     fig.update_layout(mapbox_style="open-street-map")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     return fig
+
+
+####################################
+### CONTRIBUTION FROM DUTCH FREN ###
+####################################
+@app.callback(
+    Output("quakes_treemap", "figure"),
+    [
+        Input('date_picker_eq_tree_map1', 'start_date'),
+        Input('date_picker_eq_tree_map1', 'end_date')
+
+    ]
+)
+def quakes_treemap(start_date, end_date):
+    df = get_master_df()
+    mask_date = (df['date'] >= dt.fromisoformat(start_date).date()) & (df['date'] <= dt.fromisoformat(end_date).date())
+
+    df = df[mask_date].groupby(['week', 'date', 'mag']).size().reset_index(name='count')
+
+    fig = px.treemap(
+        df,
+        path=[px.Constant("La Palma"), 'week', 'date', 'mag'],
+        values='count',
+        color='count',
+        hover_data={
+            "count": False,
+            "date": True,
+            "week": True,
+            "mag": True
+        },
+        title='Earthquakes sorted on week, day, magnitude'
+    )
+    return fig
+
+
+# cumulative energy plot with earthquakes plotted on it on a secondary axis
+@app.callback(
+    Output("energy_plot", "figure"),
+    [
+        Input('date_picker_eq_energy_plot1', 'start_date'),
+        Input('date_picker_eq_energy_plot1', 'end_date')
+
+    ]
+)
+def energy_plot(start_date, end_date):
+    df = get_master_df()
+    subfig = make_subplots(specs=[[{"secondary_y": True}]])
+    mask_date = (df['date'] >= dt.fromisoformat(start_date).date()) & (df['date'] <= dt.fromisoformat(end_date).date())
+
+    df = df[mask_date]
+
+    fig = px.line(
+        df, x="time",
+        y="cumEnergy",
+        labels={
+            "cumEnergy": "Energy [GJ]"
+        },
+        color_discrete_sequence=["green"],
+    )
+
+    fig.update_traces(
+        line=dict(width=5)
+    )
+
+    fig2 = px.scatter(
+        df,
+        x="time",
+        y="mag",
+        size="mag",
+        color="mag",
+        hover_data=["mag"],
+    )
+
+    fig2.update_traces(yaxis="y2")
+
+    subfig.add_traces(fig2.data + fig.data)
+    subfig.layout.xaxis.title = "Time"
+    subfig.layout.yaxis.title = "Energy [GJ]"
+    subfig.layout.yaxis2.title = "Magnitude"
+
+    subfig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
+
+    return subfig
+
+
+# daily stats
+def stat_table_day():
+    df = aggregated_df(get_master_df(), "date")
+
+    return dash_table.DataTable(
+        columns=[{"name": i, "id": i}
+                 for i in df.columns],
+        data=df.to_dict('records'),
+        style_cell=dict(textAlign='left'),
+        style_header=dict(backgroundColor="paleturquoise"),
+        style_data=dict(backgroundColor="lavender"),
+        style_table={
+            'overflowY': 'scroll'
+        }
+    )
+
+
+# weekly stats
+def stat_table_week():
+    df = aggregated_df(get_master_df(), "week")
+
+    return dash_table.DataTable(
+        columns=[{"name": i, "id": i}
+                 for i in df.columns],
+        data=df.to_dict('records'),
+        style_cell=dict(textAlign='left'),
+        style_header=dict(backgroundColor="paleturquoise"),
+        style_data=dict(backgroundColor="lavender"),
+    )
+
+
+def stat_table_total():
+    df = aggregated_df(get_master_df(), "all")
+
+    return dash_table.DataTable(
+        columns=[{"name": i, "id": i}
+                 for i in df.columns],
+        data=df.to_dict('records'),
+        style_cell=dict(textAlign='left'),
+        style_header=dict(backgroundColor="paleturquoise"),
+        style_data=dict(backgroundColor="lavender"),
+    )
+
+
+###########################
+### END OF CONTRIBUTION ###
+###########################
 
 
 def today_eqs():
@@ -513,8 +681,74 @@ def generate_page_layout():
                 ],
                 className="charts"
             ),
+            html.H2(children="These next few charts courtesy of our Dutch fren"),
             html.Div(
-                today_eqs(),
+                [
+                    html.Div(
+                        [
+                            dcc.Graph(id="quakes_treemap"),
+                            dcc.DatePickerRange(
+                                id='date_picker_eq_tree_map1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+
+                        ],
+                        className="chart"
+                    ),
+                    html.Div(
+                        [
+                            dcc.Graph(id="energy_plot"),
+                            dcc.DatePickerRange(
+                                id='date_picker_eq_energy_plot1',
+                                start_date=(dt.now() - timedelta(days=60)).date(),
+                                end_date=dt.now().date(),
+                                display_format='YYYY/MM/DD'
+                            ),
+
+                        ],
+                        className="chart"
+                    ),
+                    # html.Div(
+                    #     [stat_table_day],
+                    #     className="chart"
+                    # ),
+                ],
+                className="charts"
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Label("Weekly stats."),
+                            stat_table_week(),
+                        ],
+                        className="DataTable"
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Total stats."),
+                            stat_table_total(),
+                        ],
+                        className="DataTable"
+                    ),
+                    html.Div(
+                        [
+                            html.Label("List of all earthquakes that happened today"),
+                            today_eqs(),
+                        ],
+                        className="DataTable"
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Daily stats."),
+                            stat_table_day(),
+                        ],
+                        className="DataTable"
+                    ),
+                ],
+                className="DataTables"
             ),
             html.Div(
                 [
@@ -531,7 +765,6 @@ def generate_page_layout():
                 className="donation"
             ),
         ],
-        # style={"display": "flex"}
     )
 
     return layout
