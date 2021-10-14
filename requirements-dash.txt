@@ -5,3 +5,4 @@ uWSGI
 requests
 psycopg2
 Flask-Caching
+scikit-image
