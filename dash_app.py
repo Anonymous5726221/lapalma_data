@@ -89,6 +89,8 @@ def process_data(d):
     # Add Energy equivalent in Joule
     master_df["energy"] = master_df.mag.apply(lambda x: 10 ** (1.5 * x + 4.8))
     master_df = pd.merge(master_df, master_df.groupby("date")["energy"].sum().reset_index(name='daily_energy'), how="left", on=["date"])
+
+    # TODO: Not sure if cumsum works, because the value is also going down over time. Expected it to only go up.
     master_df["cumEnergy"] = master_df.energy.cumsum()
 
     return master_df.sort_values("time", ascending=False, ignore_index=True)
@@ -129,14 +131,17 @@ def aggregated_df(master_df, agg="date"):
     agg_df[["depth", "mag"]] = np.NaN
 
     agg_df = pd.merge(agg_df, master_df.groupby(agg)["energy"].sum().round(decimals=4).reset_index(name='energy'), how="left", on=[agg])
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].min().reset_index(), how="left", on=[agg], suffixes=("", "_min"))
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].max().reset_index(), how="left", on=[agg], suffixes=("", "_max"))
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].mean().reset_index(), how="left", on=[agg], suffixes=("", "_mean"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].min().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_min"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].max().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_max"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].mean().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_mean"))
 
     agg_df = agg_df.drop(to_drop, axis=1)
 
     if agg == "date":
         agg_df['week'] = pd.to_datetime(agg_df['date']).dt.isocalendar().week
+
+    # change the order of magnitude, so it's more readable in the tables
+    agg_df['energy'] = agg_df['energy'] / 10**9
 
     return agg_df
 
@@ -446,7 +451,7 @@ def energy_plot(start_date, end_date):
         df, x="time",
         y="cumEnergy",
         labels={
-            "cumEnergy": "Energy [GJ]"
+            "cumEnergy": "Energy"
         },
         color_discrete_sequence=["green"],
     )
@@ -468,7 +473,7 @@ def energy_plot(start_date, end_date):
 
     subfig.add_traces(fig2.data + fig.data)
     subfig.layout.xaxis.title = "Time"
-    subfig.layout.yaxis.title = "Energy [GJ]"
+    subfig.layout.yaxis.title = "Cumulative energy"
     subfig.layout.yaxis2.title = "Magnitude"
 
     subfig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
