@@ -355,8 +355,10 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     r, c = volume[0].shape
 
     #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
-    df['lat_scaled'] = scaling(df.lat, lat_min, lat_max, c)
-    df['lon_scaled'] = scaling(df.lon, lon_min, lon_max, r)
+    # Issue: Map is off coordinates by  only a tiny bit. Shifting entire plot slightly.
+    # Do note: Only changes physical location on map, it doesn't change the actual coordinates.
+    df['lat_scaled'] = scaling(df.lat-0.025, lat_min, lat_max, c)
+    df['lon_scaled'] = scaling(df.lon+0.025, lon_min, lon_max, r)
 
     fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
                         color='mag', size='mag',
