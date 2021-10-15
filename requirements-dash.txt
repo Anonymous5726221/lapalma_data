@@ -6,3 +6,5 @@ requests
 psycopg2
 Flask-Caching
 scikit-image
+lxml
+pykml
