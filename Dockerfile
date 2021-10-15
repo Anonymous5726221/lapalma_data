@@ -21,6 +21,7 @@ COPY assets ./assets
 COPY dash_app.py ./
 COPY downloads.py ./
 
+ENV MPLCONFIGDIR="/tmp/matplotlib_config"
 
 RUN chmod +x ./start-dash-srv.sh
 CMD ["./start-dash-srv.sh"]
