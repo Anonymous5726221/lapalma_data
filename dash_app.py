@@ -132,17 +132,14 @@ def aggregated_df(master_df, agg="date"):
     agg_df[["depth", "mag"]] = np.NaN
 
     agg_df = pd.merge(agg_df, master_df.groupby(agg)["energy"].sum().round(decimals=4).reset_index(name='energy'), how="left", on=[agg])
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].min().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_min"))
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].max().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_max"))
-    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].mean().round(decimals=2).reset_index(), how="left", on=[agg], suffixes=("", "_mean"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].min().reset_index(), how="left", on=[agg], suffixes=("", "_min"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].max().reset_index(), how="left", on=[agg], suffixes=("", "_max"))
+    agg_df = pd.merge(agg_df, master_df.groupby(agg)[['depth', 'mag']].mean().reset_index(), how="left", on=[agg], suffixes=("", "_mean"))
 
     agg_df = agg_df.drop(to_drop, axis=1)
 
     if agg == "date":
         agg_df['week'] = pd.to_datetime(agg_df['date']).dt.isocalendar().week
-
-    # change the order of magnitude, so it's more readable in the tables
-    agg_df['energy'] = agg_df['energy'] / 10**9
 
     return agg_df
 
@@ -372,14 +369,6 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
                             'lon_scaled': False     # used to plot, is not useful otherwise
                         },
                         title="Earthquake 3d depth map")
-
-    # Alphahull eventually needs to be revised. lowering = longer and bigger blobs, increasing = tighter, smaller blobs
-    fig.add_trace(go.Mesh3d(x=df.lat_scaled, y=df.lon_scaled, z=df.depth,
-                #   alphahull=9     < top and bottom blob connect with each other, but also deforms
-                #   alphahull=18,   < relatively tight blobs with outlier quakes not being included 
-                   alphahull=14,    # < Perhaps the best of both worlds and might connect both blobs if more quakes happen in -20 -25 range
-                   color='pink',
-                   opacity=0.4))
 
     # add grayscale image to plot (impossible have an image with color :( )
     fig.add_trace(go.Surface(
