@@ -331,12 +331,20 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     root_dir = os.path.dirname(os.path.abspath(__file__))
     img_file = os.path.join(root_dir, 'assets', 'map.png')
 
+    # get image size
+    img = io.imread(img_file)
+    volume = img.T
+    r, c = volume[0].shape
+
     # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
     lat_min = 28.4007
     lat_max = 28.7105
 
     lon_min =-17.9915
     lon_max =-17.6973
+
+    master_df['lat_scaled'] = scaling(master_df.lat, lat_min, lat_max, c)
+    master_df['lon_scaled'] = scaling(master_df.lon, lon_min, lon_max, r)
 
     # apart from the masks, filter all the datapoints outside of the map to prevent scaling issues or the map not covering the entire plot
     df = master_df[
@@ -348,15 +356,6 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
         mask_depth &
         mask_date
     ]
-
-    # get image size
-    img = io.imread(img_file)
-    volume = img.T
-    r, c = volume[0].shape
-
-    #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
-    df['lat_scaled'] = scaling(df.lat, lat_min, lat_max, c)
-    df['lon_scaled'] = scaling(df.lon, lon_min, lon_max, r)
 
     fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
                         color='mag', size='mag',
