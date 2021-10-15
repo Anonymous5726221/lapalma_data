@@ -331,7 +331,7 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
 
     # get image file location
     root_dir = os.path.dirname(os.path.abspath(__file__))
-    img_file = os.path.join(root_dir, 'assets\\map.png')
+    img_file = os.path.join(root_dir, 'assets', 'map.png')
 
     # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
     lat_min = 28.4007
