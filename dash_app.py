@@ -360,7 +360,7 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     df['lat_scaled'] = scaling(df.lat, lat_min, lat_max, c)
     df['lon_scaled'] = scaling(df.lon, lon_min, lon_max, r)
 
-    fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z='depth',
+    fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
                         color='mag', size='mag',
                         hover_data={
                             'lat': True,
