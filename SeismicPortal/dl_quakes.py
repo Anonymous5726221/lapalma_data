@@ -8,9 +8,9 @@ import requests
 
 CANARY_BOX = {
     "min_lattitude": 27,
-    "max_lattitude": 30.4,
-    "min_logitude": -19.20,
-    "max_longitude": -13.20,
+    "max_lattitude": 30,
+    "min_logitude": -18.70,
+    "max_longitude": -13.50,
 }
 
 
@@ -20,7 +20,7 @@ class SeismicPortal(object):
         self.url = "https://www.seismicportal.eu"
         pass
 
-    def _paginate(self, url, q):
+    def _paginate(self, url, q, verbose):
 
         s = requests.Session()
 
@@ -35,19 +35,25 @@ class SeismicPortal(object):
         if r.status_code != 200:
             raise ConnectionError(r.status_code, r.reason)
 
-        data = r.json().get("features")
+        data = r.json()
+
+        # For some reason if only one result is returned SeismicPortal is going to return the event without the usual wrapper
+        if data.get("properties"):
+            data = [data]
+        else:
+            data = data.get("features")
 
         if len(data) == q.get("limit"):
             q["offset"] += q["limit"]
 
-            data.extend(self._paginate(url, q))
+            data.extend(self._paginate(url, q, verbose))
 
         return data
 
     def download_earthquakes(
             self,
-            start_time=dt.now() - timedelta(days=7),
-            end_time=dt.now(),
+            start_time=None,
+            end_time=None,
             min_lattitude=0.0,
             max_lattitude=0.0,
             min_logitude=0.0,
@@ -71,13 +77,16 @@ class SeismicPortal(object):
             catalog="",
             update_after="",
             format="json",
-            results=0
+            results=0,
+            verbose=False
     ):
         dt.now().astimezone()
         url = "".join([self.url, "/fdsnws/event/1/query"])
 
-        start_time = start_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
-        end_time = end_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
+        if start_time:
+            start_time = start_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
+        if end_time:
+            end_time = end_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         q = {
             "start": start_time,
@@ -107,7 +116,7 @@ class SeismicPortal(object):
             "format": "json"
         }
 
-        data = self._paginate(url, q)
+        data = self._paginate(url, q, verbose)
 
         print(f"{len(data)} earthquakes downloaded.")
         

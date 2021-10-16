@@ -91,10 +91,11 @@ def process_data(d):
     master_df["energy"] = master_df.mag.apply(lambda x: 10 ** (1.5 * x + 4.8))
     master_df = pd.merge(master_df, master_df.groupby("date")["energy"].sum().reset_index(name='daily_energy'), how="left", on=["date"])
 
+    master_df = master_df.sort_values("time", ignore_index=True)
     # TODO: Not sure if cumsum works, because the value is also going down over time. Expected it to only go up.
     master_df["cumEnergy"] = master_df.energy.cumsum()
 
-    return master_df.sort_values("time", ascending=False, ignore_index=True)
+    return master_df
 
 
 def _get_master_df():
@@ -331,12 +332,23 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     root_dir = os.path.dirname(os.path.abspath(__file__))
     img_file = os.path.join(root_dir, 'assets', 'map.png')
 
+    # get image size
+    img = io.imread(img_file)
+    volume = img.T
+    r, c = volume[0].shape
+
     # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
     lat_min = 28.4007
     lat_max = 28.7105
 
     lon_min =-17.9915
     lon_max =-17.6973
+
+    #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
+    # Issue: Map is off coordinates by  only a tiny bit. Shifting entire plot slightly.
+    # Do note: Only changes physical location on map, it doesn't change the actual coordinates.
+    master_df['lat_scaled'] = scaling(master_df.lat - 0.025, lat_min, lat_max, c)
+    master_df['lon_scaled'] = scaling(master_df.lon + 0.025, lon_min, lon_max, r)
 
     # apart from the masks, filter all the datapoints outside of the map to prevent scaling issues or the map not covering the entire plot
     df = master_df[
@@ -348,17 +360,6 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
         mask_depth &
         mask_date
     ]
-
-    # get image size
-    img = io.imread(img_file)
-    volume = img.T
-    r, c = volume[0].shape
-
-    #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
-    # Issue: Map is off coordinates by  only a tiny bit. Shifting entire plot slightly.
-    # Do note: Only changes physical location on map, it doesn't change the actual coordinates.
-    df['lat_scaled'] = scaling(df.lat-0.025, lat_min, lat_max, c)
-    df['lon_scaled'] = scaling(df.lon+0.025, lon_min, lon_max, r)
 
     fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
                         color='mag', size='mag',
