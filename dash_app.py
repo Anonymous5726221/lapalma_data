@@ -344,8 +344,11 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
     lon_min =-17.9915
     lon_max =-17.6973
 
-    master_df['lat_scaled'] = scaling(master_df.lat, lat_min, lat_max, c)
-    master_df['lon_scaled'] = scaling(master_df.lon, lon_min, lon_max, r)
+    #scale lat and lon to row and column size of image, in seperate cols so the real lat and lon is still available while hovering
+    # Issue: Map is off coordinates by  only a tiny bit. Shifting entire plot slightly.
+    # Do note: Only changes physical location on map, it doesn't change the actual coordinates.
+    master_df['lat_scaled'] = scaling(master_df.lat - 0.025, lat_min, lat_max, c)
+    master_df['lon_scaled'] = scaling(master_df.lon + 0.025, lon_min, lon_max, r)
 
     # apart from the masks, filter all the datapoints outside of the map to prevent scaling issues or the map not covering the entire plot
     df = master_df[
