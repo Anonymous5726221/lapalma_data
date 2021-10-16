@@ -92,7 +92,6 @@ def process_data(d):
     master_df = pd.merge(master_df, master_df.groupby("date")["energy"].sum().reset_index(name='daily_energy'), how="left", on=["date"])
 
     master_df = master_df.sort_values("time", ignore_index=True)
-    # TODO: Not sure if cumsum works, because the value is also going down over time. Expected it to only go up.
     master_df["cumEnergy"] = master_df.energy.cumsum()
 
     return master_df
