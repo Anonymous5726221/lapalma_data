@@ -117,6 +117,27 @@ def get_master_df():
 
     return _get_master_df()
 
+# TODO: Tidy all this up. Maybe move figures and datatable functions to their respective files?
+########################
+### Helper functions ###
+########################
+
+
+# Probably could've done this in-line, but it would've been too difficult to read
+def scaling(data, minscaling, maxscaling, maxpxcount):
+    """scales lat and lon to pixel count row/col
+        Args:
+            data (list[float]): list with data to be scaled
+            minscaling (float): min range of the data
+            maxscaling (float): max range of the data
+            maxpxcount (int): pixel count for row/col
+
+        Returns:
+            list[float]: input data scaled to lie between 0 and pixelcount
+    """
+    scaled = np.interp(data, (minscaling, maxscaling), (0, maxpxcount))
+    return scaled
+
 
 def aggregated_df(master_df, agg="date"):
 
@@ -143,6 +164,10 @@ def aggregated_df(master_df, agg="date"):
 
     return agg_df
 
+
+############################
+### Figures declarations ###
+############################
 
 @app.callback(
     Output('dataset_last_update', 'children'),
@@ -436,9 +461,6 @@ def map_eq(start_date, end_date):
     return fig
 
 
-####################################
-### CONTRIBUTION FROM DUTCH FREN ###
-####################################
 @app.callback(
     Output("quakes_treemap", "figure"),
     [
@@ -495,7 +517,7 @@ def energy_plot(start_date, end_date):
     )
 
     fig.update_traces(
-        line=dict(width=5)
+        line=dict(width=3)
     )
 
     fig2 = px.scatter(
@@ -518,6 +540,9 @@ def energy_plot(start_date, end_date):
 
     return subfig
 
+################################
+### Data tables declarations ###
+################################
 
 # daily stats
 def stat_table_day():
@@ -562,26 +587,6 @@ def stat_table_total():
         style_data=dict(backgroundColor="lavender"),
     )
 
-# Probably could've done this in-line, but it would've been too difficult to read
-def scaling(data, minscaling, maxscaling, maxpxcount):
-    """scales lat and lon to pixel count row/col
-        Args:
-            data (list[float]): list with data to be scaled
-            minscaling (float): min range of the data
-            maxscaling (float): max range of the data
-            maxpxcount (int): pixel count for row/col
-
-        Returns:
-            list[float]: input data scaled to lie between 0 and pixelcount
-    """
-    scaled = np.interp(data, (minscaling, maxscaling), (0, maxpxcount))
-    return scaled
-
-
-###########################
-### END OF CONTRIBUTION ###
-###########################
-
 
 def today_eqs():
     master_df = get_master_df()
@@ -598,6 +603,9 @@ def today_eqs():
         style_data=dict(backgroundColor="lavender")
     )
 
+###########################
+### Misc (e.g. Buttons) ###
+###########################
 
 @app.callback(
     Output("download-kml", "data"),
