@@ -320,7 +320,7 @@ def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
             "title": "Daily earthquakes"
         },
         legend={
-            "x": 1.05
+            "x": 1.1
         },
         yaxis2=dict(
             color="royalblue",
@@ -331,6 +331,9 @@ def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
             side="right",
         ),
     )
+
+    fig.update_yaxes(automargin=True, secondary_y=True)
+
     return fig
 
 
