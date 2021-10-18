@@ -1,7 +1,7 @@
 
 from . import calculations
 from flask_caching import Cache
-from pandas import pd
+import pandas as pd
 from urllib.parse import urlparse
 import psycopg2
 import logging
