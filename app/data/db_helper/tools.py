@@ -43,7 +43,7 @@ def _get_data_from_db(conn, q, q_data=tuple()):
 
 def get_all_from_db(conn):
 
-    sql_q = "SELECT * FROM quake_data;"
+    sql_q = "SELECT * FROM quake_data ORDER BY time DESC;"
 
     results = _get_data_from_db(conn, sql_q)
 
