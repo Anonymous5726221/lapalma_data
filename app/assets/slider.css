@@ -1,0 +1,21 @@
+.rc-slider-track {
+    background-color: rgb(255, 255, 255);
+  }
+  
+  .rc-slider-dot-active {  
+    border-color: rgb(255, 255, 255);
+    border: solid 2px rgb(255, 255, 255);
+  }
+  
+  .rc-slider-handle {
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+  }
+  
+  .rc-slider-handle:hover {
+    border-color: rgb(255, 255, 255);
+  }
+  
+  .rc-slider-handle-active:active {
+    border-color: rgb(255, 255, 255);
+  }

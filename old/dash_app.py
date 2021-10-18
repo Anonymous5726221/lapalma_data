@@ -164,6 +164,7 @@ def dataset_last_update(n):
         Input('date_picker_hist1', 'end_date')
     ]
 )
+# DONE
 def eq_hist_by_magnitude_range(slider_mag, start_date, end_date):
     master_df = get_master_df()
     df = master_df[master_df["time"] >= dt(2021, 9, 1)]
@@ -202,6 +203,7 @@ def eq_hist_by_magnitude_range(slider_mag, start_date, end_date):
         Input('date_picker_scatter1', 'end_date')
     ]
 )
+# DONE
 def scatter_eq_by_depth(slider_depth, start_date, end_date):
     master_df = get_master_df()
 
@@ -230,6 +232,7 @@ def scatter_eq_by_depth(slider_depth, start_date, end_date):
         Input('date_picker_line1', 'end_date')
     ]
 )
+# DONE
 def line_daily_eq(start_date, end_date):
     master_df = get_master_df()
 
@@ -248,6 +251,7 @@ def line_daily_eq(start_date, end_date):
         Input('date_picker_hist2', 'end_date')
     ]
 )
+# DONE
 def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
     master_df = get_master_df()
 
@@ -318,6 +322,7 @@ def hist_eq_over_time_mag_mean(slider_range, start_date, end_date):
         Input('date_picker_3d_scatter1', 'end_date')
     ]
 )
+# DONE
 def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date):
     master_df = get_master_df()
 
@@ -408,6 +413,7 @@ def scatter_3d_eq_coord_by_depth(slider_mag, slider_depth, start_date, end_date)
         Input('date_picker_eq_map1', 'end_date')
     ]
 )
+# DONE
 def map_eq(start_date, end_date):
     master_df = get_master_df()
     mask_date = (master_df['date'] >= dt.fromisoformat(start_date).date()) & (master_df['date'] <= dt.fromisoformat(end_date).date())
@@ -447,6 +453,7 @@ def map_eq(start_date, end_date):
 
     ]
 )
+# DONE
 def quakes_treemap(start_date, end_date):
     df = get_master_df()
     mask_date = (df['date'] >= dt.fromisoformat(start_date).date()) & (df['date'] <= dt.fromisoformat(end_date).date())
@@ -478,6 +485,7 @@ def quakes_treemap(start_date, end_date):
 
     ]
 )
+# DONE
 def energy_plot(start_date, end_date):
     df = get_master_df()
     subfig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -519,7 +527,7 @@ def energy_plot(start_date, end_date):
     return subfig
 
 
-# daily stats
+# DONE
 def stat_table_day():
     df = aggregated_df(get_master_df(), "date")
 
@@ -536,7 +544,7 @@ def stat_table_day():
     )
 
 
-# weekly stats
+# DONE
 def stat_table_week():
     df = aggregated_df(get_master_df(), "week")
 
@@ -549,7 +557,7 @@ def stat_table_week():
         style_data=dict(backgroundColor="lavender"),
     )
 
-
+# DONE
 def stat_table_total():
     df = aggregated_df(get_master_df(), "all")
 
@@ -562,7 +570,7 @@ def stat_table_total():
         style_data=dict(backgroundColor="lavender"),
     )
 
-# Probably could've done this in-line, but it would've been too difficult to read
+# DONE
 def scaling(data, minscaling, maxscaling, maxpxcount):
     """scales lat and lon to pixel count row/col
         Args:
@@ -582,7 +590,7 @@ def scaling(data, minscaling, maxscaling, maxpxcount):
 ### END OF CONTRIBUTION ###
 ###########################
 
-
+# DONE
 def today_eqs():
     master_df = get_master_df()
 
@@ -598,7 +606,7 @@ def today_eqs():
         style_data=dict(backgroundColor="lavender")
     )
 
-
+# TODO:
 @app.callback(
     Output("download-kml", "data"),
     Input("btn_kml", "n_clicks"),
@@ -613,6 +621,7 @@ def download_kml(n_clicks):
         zipfile
     )
 
+# TODO:
 @app.callback(
     Output('dummy_out_kml', 'children'),
     Input('download-kml', 'data'))
@@ -623,7 +632,7 @@ def delete_tmp_kml(filepath):
         logging.warning(f"No file to delete yet.")
 
 
-
+# TODO:
 @app.callback(
     Output("download-csv", "data"),
     Input("btn_csv", "n_clicks"),
@@ -638,6 +647,7 @@ def download_csv(n_clicks):
         csvfile
     )
 
+# TODO:
 @app.callback(
     Output('dummy_out_csv', 'children'),
     Input('download-csv', 'data'))
@@ -648,7 +658,7 @@ def delete_tmp_csv(filepath):
         logging.warning(f"No file to delete yet.")
 
 
-
+# We don't needs this anymore
 def generate_page_layout():
     master_df = get_master_df()
     layout = html.Div(
@@ -883,6 +893,7 @@ def generate_page_layout():
 
     return layout
 
+# TODO: Your donations stuff need to be encorporated into the new app as well
 
 app.layout = generate_page_layout
 
