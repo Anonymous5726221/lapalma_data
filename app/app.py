@@ -72,4 +72,4 @@ def init_app():
     # load callbacks
     from . import callbacks
 
-    app.run_server(debug=True)
+    return app
