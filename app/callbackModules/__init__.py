@@ -11,4 +11,4 @@ from . import scatterplotmap
 from . import scatterplotxyz
 from . import treemapearthquakes
 from . import cumenergy
-from . import statistictables   # TODO:
+#from . import statistictables   # TODO:

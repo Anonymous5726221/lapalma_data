@@ -4,4 +4,4 @@ from .mapview import mapview_layout
 from .energyview import energyview_layout
 from .depthview import depthview_layout
 from .treemapview import treemapview_layout
-from .statsview import statsview_layout
+#from .statsview import statsview_layout
