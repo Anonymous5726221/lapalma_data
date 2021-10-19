@@ -12,14 +12,11 @@ COPY requirements-dash.txt ./requirements.txt
 
 RUN pip install -r requirements.txt
 
+COPY ./app ./app
 COPY uwsgi.ini ./
 COPY nginx.conf /etc/nginx
-COPY SeismicPortal ./SeismicPortal
-COPY db_helper ./db_helper
 COPY start-dash-srv.sh ./
-COPY assets ./assets
-COPY dash_app.py ./
-COPY downloads.py ./
+COPY run.py ./
 
 ENV MPLCONFIGDIR="/tmp/matplotlib_config"
 
