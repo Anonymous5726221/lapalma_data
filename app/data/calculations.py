@@ -16,17 +16,13 @@ def filter_data(df, start_date=None, end_date=None, magnitude_range=None, depth_
     Returns:
         pd dataframe: filtered dataset
     """
-    # TODO: This can be optimized
-    if start_date:
-        df = df[df['date'] >= dt.fromisoformat(start_date).date()]
-    if end_date:
-        df = df[df['date'] <= dt.fromisoformat(end_date).date()]
-    if magnitude_range:
-        df = (df['mag'] >= magnitude_range[0]) & (df['mag'] <= magnitude_range[1])
-    if depth_range:
-        df = (df['depth'] >= depth_range[0]) & (df['depth'] <= depth_range[1])
+    #TODO: Uncomment once datepicker is available
+    #date_mask = (df['date'] >= dt.fromisoformat(start_date).date()) & (df['date'] <= dt.fromisoformat(end_date).date())
+    mag_mask = (df['mag'] >= magnitude_range[0]) & (df['mag'] <= magnitude_range[1])
+    depth_mask = (df['depth'] >= depth_range[0]) & (df['depth'] <= depth_range[1])
     
-    return df
+    #return date_mask, mag_mask, depth_mask
+    return mag_mask, depth_mask
 
 def get_statistics(df, statistics_level):
     to_drop = ["depth", "mag"]
