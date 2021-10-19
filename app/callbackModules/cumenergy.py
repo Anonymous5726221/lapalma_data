@@ -17,7 +17,7 @@ from ..app import app
     [
     #    Input('date-start', 'start_date'),
     #    Input('date-end', 'end_date'),
-        Input('magnitude-slider', 'end_date'),
+        Input('magnitude-slider', 'value'),
         Input("depth-slider", "value")
     ]
 )

@@ -18,7 +18,7 @@ from ..app import app
     [
     #    Input('date-start', 'start_date'),
     #    Input('date-end', 'end_date'),
-        Input('magnitude-slider', 'end_date'),
+        Input('magnitude-slider', 'value'),
         Input("depth-slider", "value")
     ]
 )
@@ -28,7 +28,11 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
 
     # get image file location
     root_dir = os.path.dirname(os.path.abspath(__file__))
-    img_file = os.path.join(root_dir, 'assets', 'map.png')
+    root_dir = root_dir.split('\\')[:-1]
+    newPath = ""
+    for directory in root_dir:
+        newPath = os.path.join(newPath, directory)
+    img_file = os.path.join(newPath, 'assets', 'map.png')
 
     # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
     lat_min = 28.4007
