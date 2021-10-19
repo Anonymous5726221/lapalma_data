@@ -1,5 +1,6 @@
 import copy
 
+from psycopg2 import sql
 import psycopg2.extras
 
 
@@ -41,10 +42,11 @@ def _get_data_from_db(conn, q, q_data=tuple()):
     return _translate_columns_from_db(data)
 
 
-def get_all_from_db(conn):
+def get_all_from_db(conn, table="quake_data"):
 
-    sql_q = "SELECT * FROM quake_data ORDER BY time DESC;"
-
+    sql_q = sql.SQL('SELECT * FROM {table} ORDER BY time DESC;').format(
+        table=sql.SQL(table),
+    )
     results = _get_data_from_db(conn, sql_q)
 
     return results
