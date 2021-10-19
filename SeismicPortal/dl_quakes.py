@@ -7,9 +7,9 @@ import requests
 
 
 CANARY_BOX = {
-    "min_lattitude": 27,
-    "max_lattitude": 30,
-    "min_logitude": -18.70,
+    "min_latitude": 27,
+    "max_latitude": 30,
+    "min_longitude": -18.70,
     "max_longitude": -13.50,
 }
 
@@ -54,11 +54,11 @@ class SeismicPortal(object):
             self,
             start_time=None,
             end_time=None,
-            min_lattitude=0.0,
-            max_lattitude=0.0,
-            min_logitude=0.0,
+            min_latitude=0.0,
+            max_latitude=0.0,
+            min_longitude=0.0,
             max_longitude=0.0,
-            circle_lattitude=0.0,
+            circle_latitude=0.0,
             circle_longitude=0.0,
             min_radius=0.0,
             max_radius=0.0,
@@ -91,11 +91,11 @@ class SeismicPortal(object):
         q = {
             "start": start_time,
             "end": end_time,
-            "minlat": min_lattitude,
-            "maxlat": max_lattitude,
-            "minlon": min_logitude,
+            "minlat": min_latitude,
+            "maxlat": max_latitude,
+            "minlon": min_longitude,
             "maxlon": max_longitude,
-            "lat": circle_lattitude,
+            "lat": circle_latitude,
             "lon": circle_longitude,
             "minradius": min_radius,
             "maxradius": max_radius,
