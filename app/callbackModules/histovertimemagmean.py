@@ -21,7 +21,8 @@ from ..app import app
 )
 def hist_eq_over_time_mag_mean(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
     n_bins = calculations.get_n_bins(df, ["date"]) + 10
     custom_gradient = [
@@ -43,34 +44,38 @@ def hist_eq_over_time_mag_mean(magnitude_range, depth_range):   #TODO: date pick
         'rgb(255, 231, 67)',
         'rgb(255, 255, 83)'
     ]
-    fig = px.histogram(
-        df.sort_values("mag_mean", ascending=False),
-        x="date",
-        color="mag_mean",
-        color_discrete_sequence=custom_gradient,
-        nbins=n_bins,
-        title="Daily earthquake colored by daily mean magnitude."
-    )
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.histogram(
+            df[mag_mask & depth_mask].sort_values("mag_mean", ascending=False),
+            x="date",
+            color="mag_mean",
+            color_discrete_sequence=custom_gradient,
+            nbins=n_bins,
+            title="Daily earthquake colored by daily mean magnitude."
+        )
 
-    fig.add_trace(go.Scatter(x=df["date"], y=df["daily_energy"], mode="lines+markers", yaxis="y2", line=dict(color='royalblue', width=4)))
+        fig.add_trace(go.Scatter(x=df["date"], y=df["daily_energy"], mode="lines+markers", yaxis="y2", line=dict(color='royalblue', width=4)))
 
-    fig.update_layout(
-        xaxis={
-            "title": "Dates"
-        },
-        yaxis={
-            "title": "Daily earthquakes"
-        },
-        legend={
-            "x": 1.05
-        },
-        yaxis2=dict(
-            color="royalblue",
-            title="Energy release",
+        fig.update_layout(
+            xaxis={
+                "title": "Dates"
+            },
+            yaxis={
+                "title": "Daily earthquakes"
+            },
+            legend={
+                "x": 1.05
+            },
+            yaxis2=dict(
+                color="royalblue",
+                title="Energy release",
 
-            anchor="x2",
-            overlaying="y",
-            side="right",
-        ),
-    )
+                anchor="x2",
+                overlaying="y",
+                side="right",
+            ),
+        )
+    except:
+        fig = go.Figure()
     return fig

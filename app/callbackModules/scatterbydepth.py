@@ -21,16 +21,21 @@ from ..app import app
 )
 def scatter_eq_by_depth(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def scatter_eq_by_depth(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
-    fig = px.scatter(
-        df,
-        x="time",
-        y=-df["depth"],
-        color="mag",
-        size=df["mag"] ** 2 ,
-        size_max=15,
-        color_discrete_sequence=px.colors.cyclical.IceFire,
-        title="Earthquakes over time by depth (colored by magnitude)"
-    )
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.scatter(
+            df[mag_mask & depth_mask],
+            x="time",
+            y=-df["depth"],
+            color="mag",
+            size=df["mag"] ** 2 ,
+            size_max=15,
+            color_discrete_sequence=px.colors.cyclical.IceFire,
+            title="Earthquakes over time by depth (colored by magnitude)"
+        )
+    except:
+        fig = go.Figure()
     return fig

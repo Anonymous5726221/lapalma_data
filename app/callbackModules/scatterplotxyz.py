@@ -24,7 +24,8 @@ from ..app import app
 )
 def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
     # get image file location
     root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -60,41 +61,45 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
     df['lat_scaled'] = calculations.scaling(df.lat-0.025, lat_min, lat_max, c)
     df['lon_scaled'] = calculations.scaling(df.lon+0.025, lon_min, lon_max, r)
 
-    fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
-                        color='mag', size='mag',
-                        hover_data={
-                            'lat': True,
-                            'lon': True,
-                            'depth': True,
-                            'mag': True,
-                            'lat_scaled': False,    # used to plot, is not useful otherwise
-                            'lon_scaled': False     # used to plot, is not useful otherwise
-                        },
-                        title="Earthquake 3d depth map")
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.scatter_3d(df[mag_mask & depth_mask], x='lat_scaled', y='lon_scaled', z=-df['depth'],
+                            color='mag', size='mag',
+                            hover_data={
+                                'lat': True,
+                                'lon': True,
+                                'depth': True,
+                                'mag': True,
+                                'lat_scaled': False,    # used to plot, is not useful otherwise
+                                'lon_scaled': False     # used to plot, is not useful otherwise
+                            },
+                            title="Earthquake 3d depth map")
 
-    # add grayscale image to plot (impossible have an image with color :( )
-    fig.add_trace(go.Surface(
-        z=0 * np.ones((r, c)),
-        surfacecolor=volume[0],
-        colorscale='Gray',
-        showscale=False,
-        opacity=0.5,
-        cmin=0, cmax=255,
-        hoverinfo='skip'    # hoverinfo is turned off, but trace is still a plane. Can't get the data underneath it sadly
-        ))
+        # add grayscale image to plot (impossible have an image with color :( )
+        fig.add_trace(go.Surface(
+            z=0 * np.ones((r, c)),
+            surfacecolor=volume[0],
+            colorscale='Gray',
+            showscale=False,
+            opacity=0.5,
+            cmin=0, cmax=255,
+            hoverinfo='skip'    # hoverinfo is turned off, but trace is still a plane. Can't get the data underneath it sadly
+            ))
 
-    # only show height, because lat and lon are no longer useful. Hoverdata displays real lat/lon, not scaled
-    fig.update_layout(
-        scene=dict(
-            xaxis=dict(showticklabels=False),
-            yaxis=dict(showticklabels=False),
-            zaxis=dict(showticklabels=True),
-        ))
+        # only show height, because lat and lon are no longer useful. Hoverdata displays real lat/lon, not scaled
+        fig.update_layout(
+            scene=dict(
+                xaxis=dict(showticklabels=False),
+                yaxis=dict(showticklabels=False),
+                zaxis=dict(showticklabels=True),
+            ))
 
-    fig.update_layout(scene = dict(
-                        xaxis_title='Latitude',
-                        yaxis_title='Longitude',
-                        zaxis_title='Depth'))
+        fig.update_layout(scene = dict(
+                            xaxis_title='Latitude',
+                            yaxis_title='Longitude',
+                            zaxis_title='Depth'))
+    except:
+        fig = go.Figure()
 
     # showing this figure is quite intensive and could take a couple of seconds before it's loaded.
     # not sure how it performs on the website...

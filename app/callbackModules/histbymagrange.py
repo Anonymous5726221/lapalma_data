@@ -21,17 +21,22 @@ from ..app import app
 )
 def eq_hist_by_magnitude_range(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def eq_hist_by_magnitude_range(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
     c_map = calculations.get_color_map()
     n_bins = calculations.get_n_bins(df, ["date", "mag_range"])
 
-    fig = px.histogram(
-        df.sort_values("mag_range"),
-        x="date",
-        color="mag_range",
-        barmode="group",
-        color_discrete_map=c_map,
-        title="Earthquake over time sorted by Magnitude range",
-        nbins=n_bins
-    )
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.histogram(
+            df[mag_mask & depth_mask].sort_values("mag_range"),
+            x="date",
+            color="mag_range",
+            barmode="group",
+            color_discrete_map=c_map,
+            title="Earthquake over time sorted by Magnitude range",
+            nbins=n_bins
+        )
+    except:
+        fig = go.Figure()
     return fig

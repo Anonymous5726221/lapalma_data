@@ -21,21 +21,26 @@ from ..app import app
 )
 def quakes_treemap(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def quakes_treemap(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
     df = df.groupby(['week', 'date', 'mag']).size().reset_index(name='count')
 
-    fig = px.treemap(
-        df,
-        path=[px.Constant("La Palma"), 'week', 'date', 'mag'],
-        values='count',
-        color='count',
-        hover_data={
-            "count": False,
-            "date": True,
-            "week": True,
-            "mag": True
-        },
-        title='Earthquakes sorted on week, day, magnitude'
-    )
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.treemap(
+            df[mag_mask & depth_mask],
+            path=[px.Constant("La Palma"), 'week', 'date', 'mag'],
+            values='count',
+            color='count',
+            hover_data={
+                "count": False,
+                "date": True,
+                "week": True,
+                "mag": True
+            },
+            title='Earthquakes sorted on week, day, magnitude'
+        )
+    except:
+        go.Figure()
     return fig

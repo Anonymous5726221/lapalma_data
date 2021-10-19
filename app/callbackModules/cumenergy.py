@@ -23,40 +23,45 @@ from ..app import app
 )
 def energy_plot(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def energy_plot(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
-    subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    fig = px.line(
-        df, x="time",
-        y="cumEnergy",
-        labels={
-            "cumEnergy": "Energy"
-        },
-        color_discrete_sequence=["green"],
-    )
+        fig = px.line(
+            df[mag_mask & depth_mask], x="time",
+            y="cumEnergy",
+            labels={
+                "cumEnergy": "Energy"
+            },
+            color_discrete_sequence=["green"],
+        )
 
-    fig.update_traces(
-        line=dict(width=5)
-    )
+        fig.update_traces(
+            line=dict(width=5)
+        )
 
-    fig2 = px.scatter(
-        df,
-        x="time",
-        y="mag",
-        size="mag",
-        color="mag",
-        hover_data=["mag"],
-    )
+        fig2 = px.scatter(
+            df,
+            x="time",
+            y="mag",
+            size="mag",
+            color="mag",
+            hover_data=["mag"],
+        )
 
-    fig2.update_traces(yaxis="y2")
+        fig2.update_traces(yaxis="y2")
 
-    subfig.add_traces(fig2.data + fig.data)
-    subfig.layout.xaxis.title = "Time"
-    subfig.layout.yaxis.title = "Cumulative energy"
-    subfig.layout.yaxis2.title = "Magnitude"
+        subfig.add_traces(fig2.data + fig.data)
+        subfig.layout.xaxis.title = "Time"
+        subfig.layout.yaxis.title = "Cumulative energy"
+        subfig.layout.yaxis2.title = "Magnitude"
 
-    subfig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
+        subfig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
+    except:
+        fig = go.Figure()
 
     return subfig

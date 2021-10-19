@@ -21,8 +21,12 @@ from ..app import app
 )
 def line_daily_eq(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
 #def line_daily_eq(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_master_df(None, None, magnitude_range, depth_range)
+    df = database.get_unfiltered_df()
+    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
-    fig = px.line(df, x="date", y="daily_eq", title="Daily earthquakes.")
-
+    # To prevent exceptions, return empty figure if there are no values
+    try:
+        fig = px.line(df[mag_mask & depth_mask], x="date", y="daily_eq", title="Daily earthquakes.")
+    except:
+        fig = go.Figure
     return fig
