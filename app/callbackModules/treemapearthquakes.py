@@ -30,7 +30,7 @@ def quakes_treemap(start_date, end_date, magnitude_range, depth_range):
     date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
 
     df = df.groupby(['week', 'date', 'mag']).size().reset_index(name='count')
-    df = df[date_mask & mag_mask & depth_mask]
+    #df = df[date_mask & mag_mask & depth_mask] Issue #13 - Treemap seems to have issues with having masked data
 
     # To prevent exceptions, return empty figure if there are no values
     try:
