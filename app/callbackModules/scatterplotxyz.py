@@ -15,6 +15,10 @@ from ..data import database, calculations
 # load app
 from ..app import app
 
+
+logger = logging.getLogger(__name__)
+
+
 @app.callback(
     Output("scatter-3d-map", "figure"),
     [
@@ -101,7 +105,7 @@ def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_ra
                             yaxis_title='Longitude',
                             zaxis_title='Depth'))
     except Exception as e:
-        logging.error(f"Failed to display figure: {e}")
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
 
     # showing this figure is quite intensive and could take a couple of seconds before it's loaded.

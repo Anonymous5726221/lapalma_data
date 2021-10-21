@@ -12,6 +12,10 @@ from ..data import database, calculations
 # load app
 from ..app import app
 
+
+logger = logging.getLogger(__name__)
+
+
 @app.callback(
     Output("scatter-map-2d", "figure"),
     [
@@ -48,7 +52,7 @@ def map_eq(start_date, end_date, magnitude_range, depth_range):
         fig.update_layout(mapbox_style="open-street-map")
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     except Exception as e:
-        logging.error(f"Failed to display figure: {e}")
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
 
     return fig

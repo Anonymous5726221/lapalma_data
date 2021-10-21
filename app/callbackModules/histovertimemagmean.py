@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -9,6 +11,10 @@ from ..data import database, calculations
 
 # load app
 from ..app import app
+
+
+logger = logging.getLogger(__name__)
+
 
 @app.callback(
     Output("histogram-mean-mag", "figure"),
@@ -78,6 +84,7 @@ def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_rang
                 side="right",
             ),
         )
-    except:
+    except Exception as e:
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
     return fig

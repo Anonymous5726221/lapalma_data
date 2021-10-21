@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -10,6 +12,10 @@ from ..data import database, calculations
 
 # load app
 from ..app import app
+
+
+logger = logging.getLogger(__name__)
+
 
 # cumulative energy plot with earthquakes plotted on it on a secondary axis
 @app.callback(
@@ -30,9 +36,9 @@ def energy_plot(start_date, end_date, magnitude_range, depth_range):
 
     # To prevent exceptions, return empty figure if there are no values
     try:
-        subfig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-        fig = px.line(
+        subfig1 = px.line(
             df,
             x="time",
             y="cumEnergy",
@@ -42,11 +48,11 @@ def energy_plot(start_date, end_date, magnitude_range, depth_range):
             color_discrete_sequence=["green"],
         )
 
-        fig.update_traces(
+        subfig1.update_traces(
             line=dict(width=5)
         )
 
-        fig2 = px.scatter(
+        subfig2 = px.scatter(
             df,
             x="time",
             y="mag",
@@ -55,15 +61,16 @@ def energy_plot(start_date, end_date, magnitude_range, depth_range):
             hover_data=["mag"],
         )
 
-        fig2.update_traces(yaxis="y2")
+        subfig2.update_traces(yaxis="y2")
 
-        subfig.add_traces(fig2.data + fig.data)
-        subfig.layout.xaxis.title = "Time"
-        subfig.layout.yaxis.title = "Cumulative energy"
-        subfig.layout.yaxis2.title = "Magnitude"
+        fig.add_traces(subfig2.data + subfig1.data)
+        fig.layout.xaxis.title = "Time"
+        fig.layout.yaxis.title = "Cumulative energy"
+        fig.layout.yaxis2.title = "Magnitude"
 
-        subfig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
-    except:
+        fig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
+    except Exception as e:
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
 
-    return subfig
+    return fig

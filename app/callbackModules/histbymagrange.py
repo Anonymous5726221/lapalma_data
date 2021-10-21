@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -9,6 +11,10 @@ from ..data import database, calculations
 
 # load app
 from ..app import app
+
+
+logger = logging.getLogger(__name__)
+
 
 @app.callback(
     Output("histogram-range-mag", "figure"),
@@ -38,6 +44,7 @@ def eq_hist_by_magnitude_range(start_date, end_date, magnitude_range, depth_rang
             title="Earthquake over time sorted by Magnitude range",
             nbins=n_bins
         )
-    except:
+    except Exception as e:
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
     return fig

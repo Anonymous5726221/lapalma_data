@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -9,6 +11,10 @@ from ..data import database, calculations
 
 # load app
 from ..app import app
+
+
+logger = logging.getLogger(__name__)
+
 
 @app.callback(
     Output("line-daily-earthquakes", "figure"),
@@ -28,6 +34,7 @@ def line_daily_eq(start_date, end_date, magnitude_range, depth_range):
     # To prevent exceptions, return empty figure if there are no values
     try:
         fig = px.line(df, x="date", y="daily_eq", title="Daily earthquakes.")
-    except:
+    except Exception as e:
+        logger.error(f"Failed to load figure: {e}")
         fig = go.Figure
     return fig

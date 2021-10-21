@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -9,6 +11,10 @@ from ..data import database, calculations
 
 # load app
 from ..app import app
+
+
+logger = logging.getLogger(__name__)
+
 
 @app.callback(
     Output("treemap-earthquakes", "figure"),
@@ -41,6 +47,7 @@ def quakes_treemap(start_date, end_date, magnitude_range, depth_range):
             },
             title='Earthquakes sorted on week, day, magnitude'
         )
-    except:
+    except Exception as e:
+        logger.error(f"Failed to load figure: {e}")
         go.Figure()
     return fig
