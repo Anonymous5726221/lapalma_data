@@ -33,7 +33,7 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
     newPath = ""
     for directory in root_dir:
         newPath = os.path.join(newPath, directory)
-    img_file = os.path.join(newPath, 'assets', 'map.png')
+    img_file = os.path.join(newPath, 'app', 'assets', 'map.png')
 
     # coordinates of the map, changing this will fuck up the scaling, need a new map if you want to change this
     lat_min = 28.4007
