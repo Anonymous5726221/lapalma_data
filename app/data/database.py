@@ -25,6 +25,7 @@ CACHE_CONFIG = {
 cache = Cache()
 cache.init_app(app.server, config=CACHE_CONFIG)
 
+
 def process_data(d):
     master_df = pd.DataFrame(d)
 
@@ -78,10 +79,11 @@ def process_data(d):
     master_df["energy"] = master_df.mag.apply(lambda x: 10 ** (1.5 * x + 4.8))
     master_df = pd.merge(master_df, master_df.groupby("date")["energy"].sum().reset_index(name='daily_energy'), how="left", on=["date"])
 
-    # TODO: Not sure if cumsum works, because the value is also going down over time. Expected it to only go up.
+    master_df = master_df.sort_values("time", ignore_index=True)
     master_df["cumEnergy"] = master_df.energy.cumsum()
 
-    return master_df.sort_values("time", ascending=False, ignore_index=True)
+    return master_df
+
 
 def _get_master_df():
 
