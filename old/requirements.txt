@@ -1,0 +1,7 @@
+pandas
+matplotlib
+seaborn
+geopandas
+contextily
+jupyter_contrib_nbextensions
+plotly==5.3.1 
