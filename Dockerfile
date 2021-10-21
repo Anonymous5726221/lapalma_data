@@ -13,6 +13,7 @@ COPY requirements-dash.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
 COPY ./app ./app
+COPY ./assets ./assets
 COPY uwsgi.ini ./
 COPY nginx.conf /etc/nginx
 COPY start-dash-srv.sh ./
