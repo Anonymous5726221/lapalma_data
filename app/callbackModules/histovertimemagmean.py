@@ -13,16 +13,15 @@ from ..app import app
 @app.callback(
     Output("histogram-mean-mag", "figure"),
     [
-    #    Input('date-start', 'start_date'),
-    #    Input('date-end', 'end_date'),
+        Input('date-picker', 'start_date'),
+        Input('date-picker', 'end_date'),
         Input('magnitude-slider', 'value'),
         Input("depth-slider", "value")
     ]
 )
-def hist_eq_over_time_mag_mean(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
-#def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_range):
+def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_range):
     df = database.get_unfiltered_df()
-    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
+    date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
 
     n_bins = calculations.get_n_bins(df, ["date"]) + 10
     custom_gradient = [
@@ -44,10 +43,13 @@ def hist_eq_over_time_mag_mean(magnitude_range, depth_range):   #TODO: date pick
         'rgb(255, 231, 67)',
         'rgb(255, 255, 83)'
     ]
+
+    df = df[date_mask & mag_mask & depth_mask]
+
     # To prevent exceptions, return empty figure if there are no values
     try:
         fig = px.histogram(
-            df[mag_mask & depth_mask].sort_values("mag_mean", ascending=False),
+            df.sort_values("mag_mean", ascending=False),
             x="date",
             color="mag_mean",
             color_discrete_sequence=custom_gradient,

@@ -18,18 +18,17 @@ from ..app import app
 @app.callback(
     Output("scatter-3d-map", "figure"),
     [
-    #    Input('date-start', 'start_date'),
-    #    Input('date-end', 'end_date'),
+        Input('date-picker', 'start_date'),
+        Input('date-picker', 'end_date'),
         Input('magnitude-slider', 'value'),
         Input("depth-slider", "value")
     ]
 )
-def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
-#def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_range):
+def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_range):
     df = database.get_unfiltered_df()
-    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
+    date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
 
-    df = df[mag_mask & depth_mask]
+    df = df[date_mask & mag_mask & depth_mask]
     # get image file location
     root_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = root_dir.split('\\')[:-1]

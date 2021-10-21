@@ -15,24 +15,26 @@ from ..app import app
 @app.callback(
     Output("line-cumenergy", "figure"),
     [
-    #    Input('date-start', 'start_date'),
-    #    Input('date-end', 'end_date'),
+        Input('date-picker', 'start_date'),
+        Input('date-picker', 'end_date'),
         Input('magnitude-slider', 'value'),
         Input("depth-slider", "value")
     ]
 )
-def energy_plot(magnitude_range, depth_range):   #TODO: date picker is not implemented yet 
-#def energy_plot(start_date, end_date, magnitude_range, depth_range):
-    df = database.get_unfiltered_df()
-    mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
+def energy_plot(start_date, end_date, magnitude_range, depth_range):
 
+    df = database.get_unfiltered_df()
+    date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
+
+    df = df[date_mask & mag_mask & depth_mask]
 
     # To prevent exceptions, return empty figure if there are no values
     try:
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
         fig = px.line(
-            df[mag_mask & depth_mask], x="time",
+            df,
+            x="time",
             y="cumEnergy",
             labels={
                 "cumEnergy": "Energy"
@@ -45,7 +47,7 @@ def energy_plot(magnitude_range, depth_range):   #TODO: date picker is not imple
         )
 
         fig2 = px.scatter(
-            df[mag_mask & depth_mask],
+            df,
             x="time",
             y="mag",
             size="mag",
