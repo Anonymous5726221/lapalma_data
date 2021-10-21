@@ -5,6 +5,7 @@ from dash import html, dcc
 # load sidebar components
 from .magnitudeslider import magnitude_slider
 from .depthslider import depth_slider
+from .datepicker import date_picker
 from .tabs import tabs
 from .buttongroup import button_group
 
@@ -48,6 +49,8 @@ sidebar = html.Div(
         html.Div([magnitude_slider]),
         html.P("Depth"),
         html.Div([depth_slider]),
+        html.P("Date picker"),
+        html.Div([date_picker]),
         html.P("Move through data", style={"display":"none"}),    # TODO: Temp until we figure out how to make this work
         html.Div([button_group], style={"display":"none"})        # Same as above, but for buttons
     ],
