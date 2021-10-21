@@ -13,8 +13,6 @@ app = None
 ################################
 # load components
 from . import components
-# load views
-from . import views
 
 BASELAYOUT = html.Div(
     [
@@ -69,6 +67,8 @@ def init_app():
 
     app.layout = html.Div([dcc.Location(id="url"), layout])
 
+    # load views
+    from . import views
     # load callbacks
     from . import callbacks
 
