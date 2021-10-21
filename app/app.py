@@ -1,3 +1,5 @@
+import os
+
 import dash
 from dash import html
 from dash import dcc
@@ -19,7 +21,7 @@ BASELAYOUT = html.Div(
         html.Div(
             [
                 html.Div(
-                    [components.sidebar],
+                    [*components.sidebar],
                     id="sidebar-layout",
                     className="col-md-2",
                 ),
