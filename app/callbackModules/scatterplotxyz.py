@@ -1,4 +1,6 @@
 import os
+import logging
+
 from skimage import io
 import dash_bootstrap_components as dbc
 from dash import html
@@ -27,6 +29,7 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
     df = database.get_unfiltered_df()
     mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
+    df = df[mag_mask & depth_mask]
     # get image file location
     root_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = root_dir.split('\\')[:-1]
@@ -63,7 +66,7 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
 
     # To prevent exceptions, return empty figure if there are no values
     try:
-        fig = px.scatter_3d(df[mag_mask & depth_mask], x='lat_scaled', y='lon_scaled', z=-df['depth'],
+        fig = px.scatter_3d(df, x='lat_scaled', y='lon_scaled', z=-df['depth'],
                             color='mag', size='mag',
                             hover_data={
                                 'lat': True,
@@ -98,7 +101,8 @@ def scatter_3d_eq_coord_by_depth(magnitude_range, depth_range):   #TODO: date pi
                             xaxis_title='Latitude',
                             yaxis_title='Longitude',
                             zaxis_title='Depth'))
-    except:
+    except Exception as e:
+        logging.error(f"Failed to display figure: {e}")
         fig = go.Figure()
 
     # showing this figure is quite intensive and could take a couple of seconds before it's loaded.

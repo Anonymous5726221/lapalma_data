@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
@@ -24,10 +26,12 @@ def map_eq(magnitude_range, depth_range):   #TODO: date picker is not implemente
     df = database.get_unfiltered_df()
     mag_mask, depth_mask = calculations.filter_data(df, None, None, magnitude_range, depth_range)
 
+    df = df[mag_mask & depth_mask]
+
     # To prevent exceptions, return empty figure if there are no values
     try:
         fig = px.scatter_mapbox(
-            df[mag_mask & depth_mask],
+            df,
             lat="lat",
             lon="lon",
             color="mag",
@@ -44,7 +48,8 @@ def map_eq(magnitude_range, depth_range):   #TODO: date picker is not implemente
         )
         fig.update_layout(mapbox_style="open-street-map")
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-    except:
+    except Exception as e:
+        logging.error(f"Failed to display figure: {e}")
         fig = go.Figure()
 
     return fig
