@@ -5,6 +5,7 @@ from ..callbackModules import statistictables   # TODO: This shouldn't be here. 
 statsview_layout = html.Div(children=[
     html.Div(
                 [
+                    html.Hr(),
                     html.Div(
                         [
                             html.H5("List of all earthquakes that happened today"),
