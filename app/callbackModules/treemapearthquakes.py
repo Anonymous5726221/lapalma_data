@@ -49,5 +49,5 @@ def quakes_treemap(start_date, end_date, magnitude_range, depth_range):
         )
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
-        go.Figure()
+        fig = go.Figure()
     return fig
