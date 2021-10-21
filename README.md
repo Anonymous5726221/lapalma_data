@@ -33,6 +33,19 @@ $ pip install -r requirements.txt
 
 Once that's done you can open the `main.ipynb` notebook and run it.
 
+## Development
+
+There is a [docker-compose](https://docs.docker.com/compose/install/) stack available to run the app locally including a subset of the data available in the database.
+
+```commandline
+cd dev
+
+docker-compose up --build
+```
+
+This will build the Dockerfile located in the root dir and start postgresql alonside the dash app using the db dump located
+in `dev/db_dump` dir as init data. The app will then be accessible on http://127.0.0.1:8050
+
 ## Donation
 
 If you find this  useful please consider donating to one of my crypto account. Thank you :)

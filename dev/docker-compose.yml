@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  dash-app-dev:
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgresql:5432/postgres
+    build: ..
+    ports:
+      - "8050:8050"
+  postgresql:
+    image: "postgres"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "postgres"
+      POSTGRES_PASSWORD: "password"
+    volumes:
+      - ./db_dump/dump.sql:/docker-entrypoint-initdb.d/dump.sql

@@ -8,3 +8,4 @@ Flask-Caching
 scikit-image
 lxml
 pykml
+dash-bootstrap-components
