@@ -1,7 +1,6 @@
 from dash.html import Br
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-from dash import html
+from dash import html, dcc
 
 # load sidebar components
 from .magnitudeslider import magnitude_slider

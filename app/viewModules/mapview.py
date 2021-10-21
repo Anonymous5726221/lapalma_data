@@ -1,5 +1,4 @@
-import dash_core_components as dcc
-from dash import html
+from dash import html, dcc
 
 mapview_layout = html.Div(children=[
     html.Div("2d map"),

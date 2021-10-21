@@ -1,5 +1,4 @@
-import dash_core_components as dcc
-from dash import html
+from dash import html, dcc
 
 magnitudeview_layout = html.Div(children=[
     html.Div("Histogram based on range"),

@@ -1,5 +1,4 @@
-import dash_core_components as dcc
-from dash import html
+from dash import html, dcc
 from ..callbackModules import statistictables   # TODO: This shouldn't be here. Structure should remain consistent and this is an outlier.
                                                 # Table should output to id='' of a div instead
 
