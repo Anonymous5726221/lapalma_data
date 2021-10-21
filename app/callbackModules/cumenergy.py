@@ -45,7 +45,7 @@ def energy_plot(magnitude_range, depth_range):   #TODO: date picker is not imple
         )
 
         fig2 = px.scatter(
-            df,
+            df[mag_mask & depth_mask],
             x="time",
             y="mag",
             size="mag",
