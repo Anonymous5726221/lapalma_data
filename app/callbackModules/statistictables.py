@@ -24,10 +24,16 @@ def stat_table_day():
                  for i in df.columns],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
-        style_header=dict(backgroundColor="paleturquoise"),
-        style_data=dict(backgroundColor="lavender"),
+        style_header=dict(
+            backgroundColor='rgb(30,30,30)',
+            color='white'
+            ),
+        style_data=dict(
+            backgroundColor='rgb(50,50,50)',
+            color='white'
+            ),
         style_table={
-            'overflowY': 'scroll'
+            'width': '{}%'.format(100)
         }
     )
 
@@ -40,8 +46,17 @@ def stat_table_week():
                  for i in df.columns],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
-        style_header=dict(backgroundColor="paleturquoise"),
-        style_data=dict(backgroundColor="lavender"),
+        style_header=dict(
+            backgroundColor='rgb(30,30,30)',
+            color='white'
+            ),
+        style_data=dict(
+            backgroundColor='rgb(50,50,50)',
+            color='white'
+            ),
+        style_table={
+            'width': '{}%'.format(100)
+        }
     )
 
 
@@ -54,8 +69,17 @@ def stat_table_total():
                  for i in df.columns],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
-        style_header=dict(backgroundColor="paleturquoise"),
-        style_data=dict(backgroundColor="lavender"),
+        style_header=dict(
+            backgroundColor='rgb(30,30,30)',
+            color='white'
+            ),
+        style_data=dict(
+            backgroundColor='rgb(50,50,50)',
+            color='white'
+            ),
+        style_table={
+            'width': '{}%'.format(100)
+        }
     )
 
 def today_eqs():
@@ -69,6 +93,15 @@ def today_eqs():
                  for i in df.columns],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
-        style_header=dict(backgroundColor="paleturquoise"),
-        style_data=dict(backgroundColor="lavender")
+        style_header=dict(
+            backgroundColor='rgb(30,30,30)',
+            color='white'
+            ),
+        style_data=dict(
+            backgroundColor='rgb(50,50,50)',
+            color='white'
+            ),
+        style_table={
+            'width': '{}%'.format(100)
+        }
     )
