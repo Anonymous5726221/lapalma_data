@@ -33,8 +33,10 @@ def line_daily_eq(start_date, end_date, magnitude_range, depth_range):
 
     # To prevent exceptions, return empty figure if there are no values
     try:
-        fig = px.line(df, x="date", y="daily_eq", title="Daily earthquakes.")
+        fig = px.line(df, x="date", y="daily_eq", title="Daily earthquakes.",
+            template="plotly_dark")
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure
+        fig.layout.template="plotly_dark"
     return fig

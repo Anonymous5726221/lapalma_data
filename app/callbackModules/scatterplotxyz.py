@@ -103,10 +103,12 @@ def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_ra
         fig.update_layout(scene = dict(
                             xaxis_title='Latitude',
                             yaxis_title='Longitude',
-                            zaxis_title='Depth'))
+                            zaxis_title='Depth',),
+                            template="plotly_dark")
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
+        fig.layout.template="plotly_dark"
 
     # showing this figure is quite intensive and could take a couple of seconds before it's loaded.
     # not sure how it performs on the website...

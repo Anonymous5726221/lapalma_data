@@ -48,11 +48,13 @@ def map_eq(start_date, end_date, magnitude_range, depth_range):
                 "mag": True,
                 "depth": "km"
             },
+            template="plotly_dark"
         )
         fig.update_layout(mapbox_style="open-street-map")
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
+        fig.layout.template="plotly_dark"
 
     return fig
