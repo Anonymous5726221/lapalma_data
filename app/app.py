@@ -46,7 +46,7 @@ BASELAYOUT = html.Div(
 def init_app():
     global app
 
-    # This is the only time 
+    # This is the only time
     layout = html.Div([
         BASELAYOUT
     ])
