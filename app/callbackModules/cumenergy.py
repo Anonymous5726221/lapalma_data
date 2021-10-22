@@ -69,6 +69,7 @@ def energy_plot(start_date, end_date, magnitude_range, depth_range):
         fig.layout.yaxis2.title = "Magnitude"
         fig.layout.title = "Cumulative energy"
         fig.layout.template="plotly_dark"
+        fig.layout.height = 800
 
         fig.update_xaxes(range=[df.time.min() - pd.Timedelta(hours=1), df.time.max() + pd.Timedelta(hours=1)])
     except Exception as e:

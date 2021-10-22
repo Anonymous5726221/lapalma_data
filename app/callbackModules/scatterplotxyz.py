@@ -79,7 +79,7 @@ def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_ra
                                 'lat_scaled': False,    # used to plot, is not useful otherwise
                                 'lon_scaled': False     # used to plot, is not useful otherwise
                             },
-                            title="Earthquake 3d depth map")
+                            title="Earthquake 3d depth map", height=800)
 
         # add grayscale image to plot (impossible have an image with color :( )
         fig.add_trace(go.Surface(

@@ -43,7 +43,8 @@ def eq_hist_by_magnitude_range(start_date, end_date, magnitude_range, depth_rang
             color_discrete_map=c_map,
             title="Earthquake over time sorted by Magnitude range",
             nbins=n_bins,
-            template="plotly_dark"
+            template="plotly_dark",
+            height = 600
         )
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")

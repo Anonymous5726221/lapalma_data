@@ -42,7 +42,8 @@ def scatter_eq_by_depth(start_date, end_date, magnitude_range, depth_range):
             size_max=15,
             color_discrete_sequence=px.colors.cyclical.IceFire,
             title="Earthquakes over time by depth (colored by magnitude)",
-            template="plotly_dark"
+            template="plotly_dark",
+            height= 800
         )
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
