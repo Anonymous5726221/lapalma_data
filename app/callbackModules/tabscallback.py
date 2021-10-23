@@ -1,8 +1,7 @@
 from dash.dependencies import Input, Output
 
 # load app
-from ..app import app
-
+from ..server import app
 @app.callback(
     Output("hidden-div", "children"),
     [Input("tabs", "active_tab")]

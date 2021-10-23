@@ -13,8 +13,7 @@ import numpy as np
 from ..data import database, calculations
 
 # load app
-from ..app import app
-
+from ..server import app
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,7 @@ from datetime import datetime as dt
 from ..data import database, calculations
 
 # load app
-from ..app import app
-
+from ..server import app
 # TODO: Not officially a callback, so not sure what to do with this one yet
 # for now it's in here
 

@@ -1,77 +1,61 @@
-import os
+import logging
 
-import dash
-from dash import html
-from dash import dcc
-from dash.html.Div import Div
-import dash_bootstrap_components as dbc
+from dash import html, dcc, Dash
 
-# workaround to make app callable from other modules
-app = None
-
-
-################################
-# Default layout used for view #
-################################
-# load components
+from .server import app, server
+from . import views
+from . import callbacks
 from . import components
+from .data.database import get_unfiltered_df
 
-BASELAYOUT = html.Div(
-    [
-        html.Div(
-            [
-                html.Div(
-                    [*components.sidebar],
-                    id="sidebar-layout",
-                    className="col-md-2",
-                ),
-                html.Div(
-                    [
-                        html.Div(
-                            [],
-                            id="content"
-                        ),
-                    ],
-                    className="col-md-10",
-                )
-            ],
-            className="row"
-        ),
-        html.Div(id="hidden-div", style={"display":"none"})
-    ],
-    className="container-fluid",
-    id="base-layout"
-)
 
-def init_app():
-    global app
+logger = logging.getLogger(__name__)
 
-    # This is the only time
-    layout = html.Div([
-        BASELAYOUT
-    ])
 
-    # TODO: Figure out a way to import local stylesheets, can't get it to work atm.
-    # Html link doesn't work either...
-    external_stylesheets = [
-        dbc.themes.DARKLY,
-        # html.Link(
-        #     rel="stylesheet",
-        #     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css"
-        # ),
-    ]
+def generate_layout():
+    logger.info("Generating layout...")
 
-    app = dash.Dash(external_stylesheets=external_stylesheets)
+    df = get_unfiltered_df()
 
-    # Callbacks generate an exception when the html structure isn't 'fixed'
-    # Needs to be surpressed, because it's giving out false exceptions
-    app.config.suppress_callback_exceptions=True
+    base_layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        [*components.sidebar(df)],
+                        id="sidebar-layout",
+                        className="col-md-2",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [],
+                                id="content"
+                            ),
+                        ],
+                        className="col-md-10",
+                    )
+                ],
+                className="row"
+            ),
+            html.Div(id="hidden-div", style={"display": "none"})
+        ],
+        className="container-fluid",
+        id="base-layout"
+    )
 
-    app.layout = html.Div([dcc.Location(id="url"), layout])
+    return html.Div(
+        [
+            dcc.Location(id="url"),
+            html.Div(
+                [
+                    base_layout
+                ]
+            )
+        ]
+    )
 
-    # load views
-    from . import views
-    # load callbacks
-    from . import callbacks
 
-    return app
+app.config.suppress_callback_exceptions=True
+app.layout = generate_layout
+

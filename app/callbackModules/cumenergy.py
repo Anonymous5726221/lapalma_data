@@ -11,7 +11,7 @@ import pandas as pd
 from ..data import database, calculations
 
 # load app
-from ..app import app
+from ..server import app
 
 
 logger = logging.getLogger(__name__)

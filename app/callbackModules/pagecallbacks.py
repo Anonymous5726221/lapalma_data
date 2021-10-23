@@ -3,7 +3,7 @@ from dash import html
 from dash.dependencies import Input, Output
 
 # load app
-from ..app import app
+from ..server import app
 
 # TODO: Clean this up and make it more dynamic if possible (probably isn't)
 from .. import viewModules

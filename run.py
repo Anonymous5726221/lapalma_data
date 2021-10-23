@@ -1,12 +1,10 @@
 import logging
+import os
 
-from app.app import init_app
+from app.app import app, server
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-app = init_app()
-server = app.server
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO").upper(), format='%(asctime)s - %(funcName)s - %(levelname)s:%(message)s')
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8050)
-
