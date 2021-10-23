@@ -11,7 +11,7 @@ from ..data import database, calculations
 
 # load app
 from ..server import app
-
+from ..styles.color_fader import custom_discrete_sequence
 
 logger = logging.getLogger(__name__)
 
@@ -30,27 +30,11 @@ def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_rang
     date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
 
     n_bins = calculations.get_n_bins(df, ["date"]) + 10
-    custom_gradient = [
-        'rgb(29, 1, 68)',
-        'rgb(58, 0, 75)',
-        'rgb(85, 0, 81)',
-        'rgb(111, 0, 84)',
-        'rgb(135, 2, 86)',
-        'rgb(158, 17, 86)',
-        'rgb(180, 35, 84)',
-        'rgb(200, 53, 81)',
-        'rgb(217, 73, 77)',
-        'rgb(232, 93, 72)',
-        'rgb(244, 115, 66)',
-        'rgb(254, 137, 61)',
-        'rgb(255, 160, 57)',
-        'rgb(255, 184, 55)',
-        'rgb(255, 207, 58)',
-        'rgb(255, 231, 67)',
-        'rgb(255, 255, 83)'
-    ]
 
     df = df[date_mask & mag_mask & depth_mask]
+
+    n = len(df.groupby("mag_mean").count())
+    custom_gradient = custom_discrete_sequence(n)
 
     # To prevent exceptions, return empty figure if there are no values
     try:

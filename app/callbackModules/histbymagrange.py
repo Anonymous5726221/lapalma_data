@@ -11,6 +11,7 @@ from ..data import database, calculations
 
 # load app
 from ..server import app
+from ..styles.color_fader import custom_discrete_sequence
 
 
 logger = logging.getLogger(__name__)
@@ -28,10 +29,12 @@ logger = logging.getLogger(__name__)
 def eq_hist_by_magnitude_range(start_date, end_date, magnitude_range, depth_range):
     df = database.get_unfiltered_df()
     date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
-    c_map = calculations.get_color_map()
     n_bins = calculations.get_n_bins(df, ["date", "mag_range"])
 
     df = df[date_mask & mag_mask & depth_mask]
+
+    n = len(df.groupby("mag_range").count())
+    custom_gradient = custom_discrete_sequence(n)[::-1]
 
     # To prevent exceptions, return empty figure if there are no values
     try:
@@ -40,7 +43,7 @@ def eq_hist_by_magnitude_range(start_date, end_date, magnitude_range, depth_rang
             x="date",
             color="mag_range",
             barmode="group",
-            color_discrete_map=c_map,
+            color_discrete_sequence=custom_gradient,
             title="Earthquake over time sorted by Magnitude range",
             nbins=n_bins,
         )
