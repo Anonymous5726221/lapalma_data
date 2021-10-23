@@ -26,3 +26,13 @@
     margin-right: -50%;
     transform: translate(-33%, -50%);
 }
+
+.eq-graph {
+    padding-bottom: 10px;
+    height: 45vh;
+}
+
+.eq-map {
+    padding-bottom: 10px;
+    height: 70vh
+}
