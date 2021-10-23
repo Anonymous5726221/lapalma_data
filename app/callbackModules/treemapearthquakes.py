@@ -45,10 +45,8 @@ def quakes_treemap(start_date, end_date, magnitude_range, depth_range):
                 "mag": True
             },
             title='Earthquakes sorted on week, day, magnitude',
-            template="plotly_dark"
         )
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
-        fig.layout.template="plotly_dark"
     return fig

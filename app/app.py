@@ -1,16 +1,18 @@
 import logging
 
 from dash import html, dcc, Dash
+import plotly.io as pio
 
 from .server import app, server
 from . import views
 from . import callbacks
 from . import components
 from .data.database import get_unfiltered_df
-
+from .styles.lpmtg_style import lpmtg_template
 
 logger = logging.getLogger(__name__)
 
+pio.templates.default = lpmtg_template
 
 def generate_layout():
     logger.info("Generating layout...")

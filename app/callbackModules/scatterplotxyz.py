@@ -102,8 +102,8 @@ def scatter_3d_eq_coord_by_depth(start_date, end_date, magnitude_range, depth_ra
         fig.update_layout(scene = dict(
                             xaxis_title='Latitude',
                             yaxis_title='Longitude',
-                            zaxis_title='Depth',),
-                            template="plotly_dark")
+                            zaxis_title='Depth',)
+        )
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()

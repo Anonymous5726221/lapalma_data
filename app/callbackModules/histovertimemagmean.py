@@ -61,7 +61,6 @@ def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_rang
             color_discrete_sequence=custom_gradient,
             nbins=n_bins,
             title="Daily earthquake colored by daily mean magnitude.",
-            template="plotly_dark"
         )
 
         fig.add_trace(go.Scatter(x=df["date"], y=df["daily_energy"], mode="lines+markers", yaxis="y2", line=dict(color='royalblue', width=4)))
@@ -88,5 +87,4 @@ def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_rang
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()
-        fig.layout.template="plotly_dark"
     return fig
