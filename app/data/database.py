@@ -129,7 +129,7 @@ def get_master_df(start_date=None, end_date=None, magnitude_range=None, depth_ra
     df = calculations.filter_data(df, start_date=None, end_date=None, magnitude_range=None, depth_range=None)
     return df
 
-def get_stats_df(statistics_level="date"):
+def get_stats_df(statistics_level="date", df=None):
     """get dataframe with extra statistical columns
 
     Args:
@@ -138,6 +138,8 @@ def get_stats_df(statistics_level="date"):
     Returns:
         pd dataframe: dataframe with statistical columns
     """
-    df = get_unfiltered_df()
+    if df is None:
+        df = get_unfiltered_df()
+
     df = calculations.get_statistics(df, statistics_level)
     return df
