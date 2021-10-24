@@ -43,6 +43,9 @@ def process_data(d):
 
     # Enrich data
 
+    # Add string coordinate
+    master_df["coordinate"] = master_df["lat"].astype(str) + ", " + master_df["lon"].astype(str)
+
     # Add week number
     master_df['week'] = master_df['time'].dt.isocalendar().week
 
