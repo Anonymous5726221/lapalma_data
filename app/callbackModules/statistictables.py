@@ -33,6 +33,7 @@ def stat_table_day():
             table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
         ],
         data=df.to_dict('records'),
+        sort_action="native",
         style_cell=dict(textAlign='left'),
         style_header=dict(
             backgroundColor='rgb(30,30,30)',
@@ -69,6 +70,7 @@ def stat_table_week():
             table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
         ],
         data=df.to_dict('records'),
+        sort_action="native",
         style_cell=dict(textAlign='left'),
         style_header=dict(
             backgroundColor='rgb(30,30,30)',
@@ -134,6 +136,7 @@ def today_eqs():
             dict(id='coordinate', name='Coordinate', type='text'),
         ],
         data=df.to_dict('records'),
+        sort_action="native",
         style_cell=dict(textAlign='left'),
         style_header=dict(
             backgroundColor='rgb(30,30,30)',
