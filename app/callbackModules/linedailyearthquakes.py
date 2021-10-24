@@ -30,10 +30,12 @@ def line_daily_eq(start_date, end_date, magnitude_range, depth_range):
     date_mask, mag_mask, depth_mask = calculations.filter_data(df, start_date, end_date, magnitude_range, depth_range)
 
     df = df[date_mask & mag_mask & depth_mask]
+    df = database.get_stats_df("date", df)
 
     # To prevent exceptions, return empty figure if there are no values
     try:
-        fig = px.line(df, x="date", y="daily_eq", title="Daily earthquakes.")
+        fig = px.line(df, x="date", y="earthquakes", title="Daily earthquakes.", text="earthquakes")
+        fig.update_traces(textposition="bottom right")
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure
