@@ -50,6 +50,7 @@ def hist_eq_over_time_mag_mean(start_date, end_date, magnitude_range, depth_rang
         fig.add_trace(go.Scatter(x=df["date"], y=df["daily_energy"], mode="lines+markers", yaxis="y2", line=dict(color='royalblue', width=4)))
 
         fig.update_layout(
+            bargap=0.01,
             xaxis={
                 "title": "Dates"
             },
