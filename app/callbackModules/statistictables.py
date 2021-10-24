@@ -16,7 +16,7 @@ from ..server import app
 
 
 def stat_table_day():
-    df = database.get_stats_df("date")
+    df = database.get_stats_df("date").sort_values("date", ascending=False)
 
     # TODO: Work this into a a component so it can be used by all the table stats
     # and add a callback with the tabs? Not sure though
@@ -53,7 +53,7 @@ def stat_table_day():
 
 
 def stat_table_week():
-    df = database.get_stats_df("week")
+    df = database.get_stats_df("week").sort_values("week", ascending=False)
 
     # TODO: Work this into a a component so it can be used by all the table stats
     return dash_table.DataTable(
@@ -120,7 +120,7 @@ def stat_table_total():
 
 
 def today_eqs():
-    master_df = database.get_unfiltered_df()
+    master_df = database.get_unfiltered_df().sort_values("time", ascending=False)
 
     df = master_df[master_df["date"] == dt.utcnow().date()][["time", "mag", "depth", "coordinate", "energy"]]
 
