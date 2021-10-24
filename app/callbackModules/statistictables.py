@@ -7,6 +7,7 @@ import pandas as pd
 from datetime import datetime as dt
 
 from ..data import database, calculations
+from ..styles import table_styling
 
 # load app
 from ..server import app
@@ -31,6 +32,10 @@ def stat_table_day():
             backgroundColor='rgb(50,50,50)',
             color='white'
             ),
+        style_data_conditional=[
+            table_styling.every_other_rows(df),
+            *table_styling.highlight_max_value(df),
+        ],
         style_table={
             'width': '{}%'.format(100)
         }
@@ -55,7 +60,11 @@ def stat_table_week():
             ),
         style_table={
             'width': '{}%'.format(100)
-        }
+        },
+        style_data_conditional=[
+            table_styling.every_other_rows(df),
+            *table_styling.highlight_max_value(df),
+        ],
     )
 
 
@@ -102,5 +111,9 @@ def today_eqs():
             ),
         style_table={
             'width': '{}%'.format(100)
-        }
+        },
+        style_data_conditional=[
+            table_styling.every_other_rows(df),
+            *table_styling.highlight_max_value(df),
+        ],
     )
