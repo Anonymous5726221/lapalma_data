@@ -1,4 +1,5 @@
 from dash import html
+from dash.dash_table.Format import Format, Scheme, Symbol
 
 from .color_fader import custom_discrete_sequence
 
@@ -127,3 +128,34 @@ def discrete_background_color_bins(df, n_bins=5, columns='all'):
         )
 
     return styles
+
+
+class ColumnFormat(object):
+
+    def __init__(self, col_id, col_name=""):
+        self.col_id = col_id
+        self.col_name = col_name if col_name else col_id.title()
+
+    def energy(self):
+        return {
+            "id": self.col_id,
+            "name": self.col_name,
+            "type": "numeric",
+            "format": Format(precision=2, scheme=Scheme.decimal_si_prefix).symbol(Symbol.yes).symbol_suffix('J')
+        }
+
+    def depth(self):
+        return {
+            "id": self.col_id,
+            "name": self.col_name,
+            "type": "numeric",
+            "format": Format(precision=2, scheme=Scheme.decimal).symbol(Symbol.yes).symbol_suffix('km')
+        }
+
+    def magnitude(self):
+        return {
+            "id": self.col_id,
+            "name": self.col_name,
+            "type": "numeric",
+            "format": Format(precision=3, scheme=Scheme.decimal),
+        }
