@@ -14,14 +14,24 @@ from ..server import app
 # TODO: Not officially a callback, so not sure what to do with this one yet
 # for now it's in here
 
+
 def stat_table_day():
     df = database.get_stats_df("date")
 
     # TODO: Work this into a a component so it can be used by all the table stats
     # and add a callback with the tabs? Not sure though
     return dash_table.DataTable(
-        columns=[{"name": i, "id": i}
-                 for i in df.columns],
+        columns=[
+            dict(id='date', name='Date', type='datetime'),
+            dict(id='earthquakes', name='Earthquakes count', type='numeric'),
+            table_styling.ColumnFormat("depth_min", "Minimum Depth").depth(),
+            table_styling.ColumnFormat("depth_max", "Maximum Depth").depth(),
+            table_styling.ColumnFormat("depth_mean", "Mean Depth").depth(),
+            table_styling.ColumnFormat("mag_min", "Minimum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_max", "Maximum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_mean", "Mean Magnitude").magnitude(),
+            table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
+        ],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
         style_header=dict(
@@ -41,13 +51,23 @@ def stat_table_day():
         }
     )
 
+
 def stat_table_week():
     df = database.get_stats_df("week")
 
     # TODO: Work this into a a component so it can be used by all the table stats
     return dash_table.DataTable(
-        columns=[{"name": i, "id": i}
-                 for i in df.columns],
+        columns=[
+            dict(id='week', name='Week number', type='datetime'),
+            dict(id='earthquakes', name='Earthquakes count', type='numeric'),
+            table_styling.ColumnFormat("depth_min", "Minimum Depth").depth(),
+            table_styling.ColumnFormat("depth_max", "Maximum Depth").depth(),
+            table_styling.ColumnFormat("depth_mean", "Mean Depth").depth(),
+            table_styling.ColumnFormat("mag_min", "Minimum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_max", "Maximum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_mean", "Mean Magnitude").magnitude(),
+            table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
+        ],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
         style_header=dict(
@@ -73,8 +93,16 @@ def stat_table_total():
 
     # TODO: Work this into a a component so it can be used by all the table stats
     return dash_table.DataTable(
-        columns=[{"name": i, "id": i}
-                 for i in df.columns],
+        columns=[
+            dict(id='earthquakes', name='Earthquakes count', type='numeric'),
+            table_styling.ColumnFormat("depth_min", "Minimum Depth").depth(),
+            table_styling.ColumnFormat("depth_max", "Maximum Depth").depth(),
+            table_styling.ColumnFormat("depth_mean", "Mean Depth").depth(),
+            table_styling.ColumnFormat("mag_min", "Minimum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_max", "Maximum Magnitude").magnitude(),
+            table_styling.ColumnFormat("mag_mean", "Mean Magnitude").magnitude(),
+            table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
+        ],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
         style_header=dict(
@@ -90,15 +118,21 @@ def stat_table_total():
         }
     )
 
+
 def today_eqs():
     master_df = database.get_unfiltered_df()
 
-    df = master_df[master_df["date"] == dt.utcnow().date()][["time", "mag", "depth", "lat", "lon"]]
+    df = master_df[master_df["date"] == dt.utcnow().date()][["time", "mag", "depth", "coordinate", "energy"]]
 
     return dash_table.DataTable(
         id='today_eq',
-        columns=[{"name": i, "id": i}
-                 for i in df.columns],
+        columns=[
+            dict(id='time', name='Datetime', type='datetime'),
+            table_styling.ColumnFormat("depth", "Depth").depth(),
+            table_styling.ColumnFormat("mag", "Magnitude").magnitude(),
+            table_styling.ColumnFormat("energy", "Energy release (in joules)").energy(),
+            dict(id='coordinate', name='Coordinate', type='text'),
+        ],
         data=df.to_dict('records'),
         style_cell=dict(textAlign='left'),
         style_header=dict(
