@@ -11,7 +11,6 @@ mainview_layout = html.Div(
                         html.P("🚧 This site is still under construction and some stuff may be broken:"),
                         html.Ul(
                             [
-                                html.Li("There in an issue with the filters not reloading properly. You may need to update the date filter to include today's earthquakes in the charts."),
                                 html.Li("The datatables on the statistics page are not updated automatically."),
                                 html.Li("UI sizing might be a bit off.")
                             ]
