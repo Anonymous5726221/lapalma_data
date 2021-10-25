@@ -13,4 +13,4 @@ external_stylesheets = [
 
 server = Flask('la-palma-data-viz')
 app = Dash(external_stylesheets=external_stylesheets, server=server)
-
+app.title = "la-palma-data-viz"
