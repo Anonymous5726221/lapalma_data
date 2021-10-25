@@ -2,8 +2,9 @@ from dash import html, dcc
 from ..callbackModules import statistictables   # TODO: This shouldn't be here. Structure should remain consistent and this is an outlier.
                                                 # Table should output to id='' of a div instead
 
-statsview_layout = html.Div(children=[
-    html.Div(
+def statsview_layout():
+    return html.Div(children=[
+        html.Div(
                 [
                     html.Hr(),
                     html.Div(
@@ -40,4 +41,5 @@ statsview_layout = html.Div(children=[
                 ],
                 className="DataTables"
             )
-])
+        ]
+    )
