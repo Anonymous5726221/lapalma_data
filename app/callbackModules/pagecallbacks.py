@@ -26,7 +26,7 @@ def render_page_content(pathname):
     elif pathname == "/treemap":
         content = viewModules.treemapview_layout
     elif pathname == "/statistics":
-        content = viewModules.statsview_layout
+        content = viewModules.statsview_layout()
     else:
         # If the user tries to reach a different page, return a 404 message
         content = dbc.Jumbotron(
