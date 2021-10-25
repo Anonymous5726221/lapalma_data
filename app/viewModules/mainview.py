@@ -11,7 +11,7 @@ mainview_layout = html.Div(
                         html.P("🚧 This site is still under construction and some stuff may be broken:"),
                         html.Ul(
                             [
-                                html.Li("The datatables on the statistics page are not updated automatically."),
+                                html.Li([html.S("The datatables on the statistics page are not updated automatically."), " Fixed"]),
                                 html.Li("UI sizing might be a bit off.")
                             ]
                         ),
