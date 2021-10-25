@@ -24,7 +24,6 @@ class SeismicPortal(object):
 
         s = requests.Session()
 
-        # r = requests.get(url, params={k: v for k, v in q.items() if v})
         qry = urlencode({k: v for k, v in q.items() if v}).replace('%3A', ':')
 
         req = requests.Request(method='GET', url=url)
