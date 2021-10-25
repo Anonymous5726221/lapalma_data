@@ -1,18 +1,9 @@
-import dash_bootstrap_components as dbc
-from dash import html, dash_table
-from dash.dependencies import Input, Output
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
 from datetime import datetime as dt
 
-from ..data import database, calculations
-from ..styles import table_styling
+from dash import dash_table
 
-# load app
-from ..server import app
-# TODO: Not officially a callback, so not sure what to do with this one yet
-# for now it's in here
+from ..data import database
+from ..styles import table_styling
 
 
 def stat_table_day():
