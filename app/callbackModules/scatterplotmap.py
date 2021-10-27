@@ -32,24 +32,29 @@ def map_eq(start_date, end_date, magnitude_range, depth_range):
 
     # To prevent exceptions, return empty figure if there are no values
     try:
-        fig = px.scatter_mapbox(
-            df,
-            lat="lat",
-            lon="lon",
-            color="mag",
-            size=df["mag"] ** 2,
-            color_discrete_sequence=["fuchsia"],
-            zoom=8,
-            height=600,
-            hover_name="time",
-            hover_data={
-                # "size": False,
-                "mag": True,
-                "depth": "km"
+        fig = go.Figure(go.Scattermapbox(
+            lat=df.lat,
+            lon=df.lon,
+            mode="markers",
+            marker={
+                "size": df["mag"] * 2 ** 2,
+                "color": df.mag,
+                "showscale": True,
             },
+        ))
+        fig.update_layout(
+            mapbox_style="open-street-map",
+            mapbox_center_lon=-17.8470,
+            mapbox_center_lat=28.6716,
+            mapbox_zoom=8,
+            # marker_color=df.mag
         )
-        fig.update_layout(mapbox_style="open-street-map")
-        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+        fig.update_layout(
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+            uirevision=f"{start_date}{end_date}",
+            showlegend=False,
+        )
+
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
         fig = go.Figure()

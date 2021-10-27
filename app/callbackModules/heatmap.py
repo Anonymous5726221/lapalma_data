@@ -41,7 +41,10 @@ def heatmap_eq(start_date, end_date, magnitude_range, depth_range):
             mapbox_center_lat=28.6716,
             mapbox_zoom=8
         )
-        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+        fig.update_layout(
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+            uirevision=f"{start_date}{end_date}",
+        )
 
     except Exception as e:
         logger.error(f"Failed to load figure: {e}")
