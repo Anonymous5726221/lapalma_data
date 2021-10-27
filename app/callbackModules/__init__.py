@@ -8,6 +8,7 @@ from . import histovertimemagmean
 from . import linedailyearthquakes
 from . import scatterbydepth
 from . import scatterplotmap
+from . import heatmap
 from . import scatterplotxyz
 from . import treemapearthquakes
 from . import cumenergy

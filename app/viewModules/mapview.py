@@ -1,14 +1,14 @@
 from dash import html, dcc
 
 mapview_layout = html.Div(children=[
-    html.H5("2d map"),
+    html.H5("Earthquakes location colored by magnitude"),
     dcc.Graph(
         id='scatter-map-2d',
         className="eq-map"
     ),
-    html.H5("3d map"),
+    html.H5("Heatmap (Experimental)"),
     dcc.Graph(
-        id='scatter-3d-map',
+        id='heat-map-2d',
         className="eq-map"
-    )
+    ),
 ])

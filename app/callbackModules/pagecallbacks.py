@@ -13,12 +13,15 @@ from .. import viewModules
     Input("url", "pathname"),
     )
 def render_page_content(pathname):
+    # TODO: Replace this big if else at some point with some kind of switch (probably using a dict).
     if pathname == "/":
         content = viewModules.mainview_layout
     elif pathname == "/magnitudes":
         content = viewModules.magnitudeview_layout
     elif pathname == "/map":
         content = viewModules.mapview_layout
+    elif pathname == "/map3d":
+        content = viewModules.map_3d_view_layout
     elif pathname == "/energy":
         content = viewModules.energyview_layout
     elif pathname == "/depth":

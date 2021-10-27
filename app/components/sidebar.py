@@ -23,6 +23,7 @@ def sidebar(df):
                     dbc.NavLink("Home", href="/", active="exact"),
                     dbc.NavLink("Magnitudes", href="/magnitudes", active="exact"),
                     dbc.NavLink("Map", href="/map", active="exact"),
+                    dbc.NavLink("3D Map (slow to load)", href="/map3d", active="exact"),
                     dbc.NavLink("Energy", href="/energy", active="exact"),
                     dbc.NavLink("Depth", href="/depth", active="exact"),
                     dbc.NavLink("Treemap", href="/treemap", active="exact"),
