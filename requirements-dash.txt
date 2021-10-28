@@ -9,3 +9,4 @@ scikit-image
 lxml
 pykml
 dash-bootstrap-components
+georss_generic_client
