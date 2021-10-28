@@ -1,14 +1,18 @@
 from dash import html, dcc
+from ..components.map_options import map_option, map_overlay, map_type
 
 mapview_layout = html.Div(children=[
     html.H5("Earthquakes location colored by magnitude"),
-    dcc.Graph(
-        id='scatter-map-2d',
-        className="eq-map"
+    html.Div(
+        [
+            map_option(),
+            map_type(),
+            map_overlay(),
+        ],
+        className="map-options"
     ),
-    html.H5("Heatmap (Experimental)"),
     dcc.Graph(
-        id='heat-map-2d',
+        id='map-viz',
         className="eq-map"
     ),
 ])
