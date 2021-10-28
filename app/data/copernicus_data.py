@@ -100,16 +100,16 @@ def extract_copernicus_layers(filepath):
 
 def layer_options(layers):
     layers_matcher = {
-        "areaOfInterest_Area": "Area of interest",
-        "builtUp_Point": "Built up",
-        "facilities_Area": "Facilities Area",
-        "hydrography_Line": "Hydrography",
+        "areaOfInterest_Area": "Area of interest (Copernicus observed area)",
+        "builtUp_Point": "Built up (Building destroyed or damaged. WIP)",
+        "facilities_Area": "Facilities Area (Not too sure)",
+        "hydrography_Line": "Hydrography (Water lines? WIP)",
         "imageFootprint_Area": "Image Footprint",
-        "naturalLandUse_Area": "Natural Land Use",
-        "observedEvent_Area": "Lava Flow",
-        "observedEvent_Point": "Current Vents",
-        "physiography_Line": "Physiography",
-        "transportation_Line": "Transportation",
+        "naturalLandUse_Area": "Natural Land Use (Different type of lands (Forestry, agriculture, ... WIP)",
+        "observedEvent_Area": "Lava Flow (Lava flow area)",
+        "observedEvent_Point": "Current Vents (Current vents location. WIP)",
+        "physiography_Line": "Physiography (Relief lines)",
+        "transportation_Line": "Transportation (Damaged transportation infrastructure. WIP)",
     }
 
     return {k: v for k, v in layers_matcher.items() if k in layers}

@@ -34,7 +34,7 @@ def map_overlay():
         id="map-overlay",
         options=[{'label': v, 'value': k} for k, v in opts.items()],
         value="",
-        placeholder="Select an overlay...",
+        placeholder="Select an overlay... (WIP)",
         className="map-option"
     )
 
