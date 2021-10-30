@@ -137,7 +137,7 @@ def overlay(name):
         return overlays.get(name)
 
 
-@cache.memoize(timeout=3600*24)
+@cache.memoize(timeout=3600*12)
 def get_copernicus_data():
 
     entries = copernicus_entries()
