@@ -19,7 +19,7 @@ def render_page_content(pathname):
     elif pathname == "/magnitudes":
         content = viewModules.magnitudeview_layout
     elif pathname == "/map":
-        content = viewModules.mapview_layout
+        content = viewModules.mapview_layout()
     elif pathname == "/map3d":
         content = viewModules.map_3d_view_layout
     elif pathname == "/energy":

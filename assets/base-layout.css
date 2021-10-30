@@ -34,5 +34,37 @@
 
 .eq-map {
     padding-bottom: 10px;
-    height: 70vh
+    padding-top: 10px;
+    height: 90vh
+}
+
+.Select-control {
+    background-color: rgb(25, 25, 25) !important;
+}
+
+.has-value.Select--single > .Select-control .Select-value .Select-value-label {
+    color: rgb(255, 255, 255)
+}
+
+
+.Select-menu-outer {
+    background-color: rgb(25, 25, 25);
+}
+
+.map-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#map-style.dash-dropdown {
+    flex: 1 1 auto;
+}
+
+#map-overlay.dash-dropdown {
+    flex: 1 1 auto;
+}
+
+#map-type.dash-dropdown {
+    flex: 1 1 auto;
 }

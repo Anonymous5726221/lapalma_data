@@ -1,13 +1,12 @@
 import logging
 import os
 
-from flask_caching import Cache
 import pandas as pd
 from urllib.parse import urlparse
 import psycopg2
 
 from .db_helper import tools
-from ..server import app
+from ..server import cache
 from . import calculations
 
 
@@ -17,13 +16,6 @@ DB_PORT = DB_URL.port
 DB_NAME = DB_URL.path[1:]
 DB_USER = DB_URL.username
 DB_PASS = DB_URL.password
-
-CACHE_CONFIG = {
-    'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': "/tmp/cached_master_df"
-}
-cache = Cache()
-cache.init_app(app.server, config=CACHE_CONFIG)
 
 
 def process_data(d):
