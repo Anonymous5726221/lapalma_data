@@ -1,7 +1,8 @@
 from dash import html, dcc
 from ..components.map_options import map_option, map_overlay, map_type
 
-mapview_layout = html.Div(children=[
+def mapview_layout():
+    return html.Div(children=[
     html.H5("Earthquakes location colored by magnitude"),
     html.Div(
         [
